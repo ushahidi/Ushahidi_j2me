@@ -15,8 +15,8 @@ import com.sun.lwuit.util.Resources;
 import java.io.IOException;
 import java.util.Date;
 import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.DateField;
+//import javax.microedition.lcdui.CommandListener;
+//import javax.microedition.lcdui.DateField;
 import javax.microedition.midlet.*;
 
 /**
