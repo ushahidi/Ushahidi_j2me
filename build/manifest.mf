@@ -1,4 +1,4 @@
-MIDlet-1: Ushahidi, , Ushahidi
+MIDlet-1: Ushahidi, ,ushahidi.Ushahidi
 MIDlet-Vendor: Vendor
 MIDlet-Name: UshahidiJ2ME
 MIDlet-Version: 1.0
