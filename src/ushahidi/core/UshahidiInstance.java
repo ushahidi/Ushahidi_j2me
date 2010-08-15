@@ -16,6 +16,26 @@ import javax.microedition.io.HttpConnection;
  */
 public class UshahidiInstance {
 
+    /**
+     *Tests data connection availability by connecting to http://ushahidi.com/
+     * 
+     * @return true if a HTTP_CODE 200 is returned and false if any other code is returned
+     */
+    public boolean isConnectionAvailable() {
+        int connectionStatus = 0;
+
+        try {
+            HttpConnection testConnection = (HttpConnection) Connector.open("http://www.ushahidi.com");
+            testConnection.setRequestMethod(HttpConnection.GET);
+            connectionStatus = testConnection.getResponseCode();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return (connectionStatus == HttpConnection.HTTP_OK)? true: false;
+    }
+
     public String getInstance(String url) {
         try {
             instance = (HttpConnection) Connector.open(url);
