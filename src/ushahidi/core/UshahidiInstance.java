@@ -6,7 +6,6 @@
 package ushahidi.core;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
@@ -25,51 +24,59 @@ public class UshahidiInstance {
         int connectionStatus = 0;
 
         try {
-            HttpConnection testConnection = (HttpConnection) Connector.open("http://www.ushahidi.com");
-            testConnection.setRequestMethod(HttpConnection.GET);
-            connectionStatus = testConnection.getResponseCode();
+            instanceConnection = (HttpConnection) Connector.open("http://www.ushahidi.com");
+            instanceConnection.setRequestMethod(HttpConnection.GET);
+            connectionStatus = instanceConnection.getResponseCode();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
+        } finally {
+            closeHttpConnection();
+        } //end finally
 
         return (connectionStatus == HttpConnection.HTTP_OK)? true: false;
     }
 
-    public String getInstance(String url) {
+    public void setUshahidiInstance(String currentInstance) {
+        this.currentInstance = currentInstance;
+    }
+
+    public String getUshahidiInstance() { return currentInstance; }
+
+    /**
+     * Retries all categories available in an Ushahidi instance
+     *
+     * @return An xml with the categories in ascending order
+     */
+    public void getCategories() {
+        // Handles the forward slash at the end of the instance.
+        String ushahidiInstance = getUshahidiInstance();
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
+
         try {
-            instance = (HttpConnection) Connector.open(url);
-            instance.setRequestMethod(HttpConnection.GET);
-            int responseCode = instance.getResponseCode();
-            
-            System.out.println(responseCode);
-            if(responseCode == instance.HTTP_OK) {
-                dataInputStream = new DataInputStream(instance.openDataInputStream());
-//                Read from web server character by charcter
-                int ch;
-                while((ch = dataInputStream.read()) != -1) {
-                    message+=(char)ch;
-                }
+            instanceConnection = (HttpConnection) Connector.open(url);
+            instanceConnection.setRequestMethod(HttpConnection.GET);
+
+            if(instanceConnection.getResponseCode() == HttpConnection.HTTP_OK) {
             }
 
-        } catch (IOException ex) {
-            System.err.println(ex);
-            message = "ERROR";
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         } finally {
-            try { if (instance != null) instance.close(); } catch(IOException e) {}
-            try { if (dataInputStream != null) dataInputStream.close(); } catch(IOException e) {}
+            closeHttpConnection();
         }
-
-        return message;
     }
 
-    public void createInstance(String url) {
+    private void closeHttpConnection() {
+        try {
+            if (instanceConnection != null) instanceConnection.close();
+        } catch (Exception e) {
+            //Exception handler here
+        }
     }
 
-    public void listInstances() {
-    }
-
+    private HttpConnection instanceConnection = null;
     private DataInputStream dataInputStream;
-    private HttpConnection instance;
+    private String currentInstance;
     private String message;
 }

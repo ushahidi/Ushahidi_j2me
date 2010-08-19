@@ -66,6 +66,11 @@ public class Ushahidi extends MIDlet {
     public void destroyApp(boolean unconditional) {
     }
 
+    /**
+     * Exits the Ushahidi MIDlet
+     * 
+     * @param exit
+     */
     public void exitUshahidi(boolean exit) {
        notifyDestroyed();
        destroyApp(exit);
@@ -132,7 +137,12 @@ public class Ushahidi extends MIDlet {
         
         Command exitCommand = new Command("Exit");
         mainForm.addCommand(exitCommand);
-//   mainForm.setCommandListener(this);
+        mainForm.addCommandListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent ae) {
+                exitUshahidi(true);
+            }
+       });
 
         mainForm.show();
     }
@@ -316,6 +326,10 @@ public class Ushahidi extends MIDlet {
     }
     //</editor-fold>
 
+    /**
+     *
+     *
+     */
     private void showInstances() {
         Form instancesForm = new Form("Ushahidi Instances");
         Command addInstance = new Command("Add instance");
