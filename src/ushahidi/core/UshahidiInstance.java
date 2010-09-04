@@ -5,9 +5,12 @@
 
 package ushahidi.core;
 
-import java.io.DataInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  *
@@ -25,7 +28,7 @@ public class UshahidiInstance {
 
         try {
             instanceConnection = (HttpConnection) Connector.open("http://www.ushahidi.com");
-            instanceConnection.setRequestMethod(HttpConnection.GET);
+            instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
 
         } catch (Exception e) {
@@ -38,15 +41,15 @@ public class UshahidiInstance {
     }
 
     public void setUshahidiInstance(String currentInstance) {
-        this.currentInstance = currentInstance;
+        UshahidiInstance.currentInstance = currentInstance;
     }
 
-    public String getUshahidiInstance() { return currentInstance; }
+    public static String getUshahidiInstance() { return currentInstance; }
 
     /**
      * Retries all categories available in an Ushahidi instance
      *
-     * @return An xml with the categories in ascending order
+     * @return An XML with the categories in ascending order
      */
     public void getCategories() {
         // Handles the forward slash at the end of the instance.
@@ -55,11 +58,21 @@ public class UshahidiInstance {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            instanceConnection.setRequestMethod(HttpConnection.GET);
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            KXmlParser parser = new KXmlParser();
+            parser.setInput(reader);
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, null, "response");
 
-            if(instanceConnection.getResponseCode() == HttpConnection.HTTP_OK) {
+            while (parser.next() != XmlPullParser.END_DOCUMENT) {
+                if(parser.getEventType() == XmlPullParser.START_TAG) {
+                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
+                    else if("title".equals(parser.getName())) System.out.println(parser.nextText());
+                    else if("description".equals(parser.getName())) System.out.println(parser.nextText());
+                    else if("color".equals(parser.getName())) System.out.println(parser.nextText());
+                }
             }
-
+            
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
@@ -75,8 +88,41 @@ public class UshahidiInstance {
         }
     }
 
+    class Category {
+
+        public Category(int id, String title, String description, String color) {
+            this.id = id;
+            this.title = title;
+            this.description = description;
+            this.color = color;
+        }
+
+        public void setID(int id) {
+            this.id = id;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+        public int getID() { return id; }
+        public String getTitle() { return title; }
+        public String getDescription() { return description; }
+        public String getColor() { return color; }
+
+        private int id;
+        private String title;
+        private String description;
+        private String color;
+    }
+
     private HttpConnection instanceConnection = null;
-    private DataInputStream dataInputStream;
-    private String currentInstance;
-    private String message;
+    private static String currentInstance;
 }
