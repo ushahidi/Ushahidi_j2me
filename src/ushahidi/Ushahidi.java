@@ -13,18 +13,16 @@ import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.plaf.UIManager;
-import com.sun.lwuit.util.Resources;
-import java.io.IOException;
-import java.util.Calendar;
-
-//import javax.microedition.lcdui.CommandListener;
-//import javax.microedition.lcdui.DateField;
-import java.util.Date;
-import java.util.Vector;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
-import javax.microedition.midlet.*;
 import ushahidi.core.UshahidiInstance;
+import ushahidi.core.UshahidiSettings;
+import com.sun.lwuit.util.Resources;
+import javax.microedition.midlet.*;
+import ushahidi.core.Gmapclass;
+import java.io.IOException;
+import java.util.Vector;
+import java.util.Date;
 
 
 /**
@@ -36,18 +34,27 @@ public class Ushahidi extends MIDlet {
     private Button btreport,btview,btsettings,takephoto,takegallary;
     private Label lbtitle,lbdescri,lblocation,lbdate,lbcatego;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
-    private Image imglogo;
+    private Image imglogo, mapImage;
     private Label lblogo,lblist1,lblist2,lblist3,lblist4,lblist5,lbmap,lbseparator;
     private TabbedPane tp = null;
     private List eventlists;
-    private ComboBox category,mapcategory,instanceTextField;
-    private TextField txtitle,txlocation,txdate,txcatego,instancename,instanceurl;
+    private ComboBox category,mapcategory,instanceComboBox;
+    private TextField txtitle,txlocation,txdate,txcatego,instanceName,instanceURL;
     private TextArea txdescri;
     private Date mydate;
     private  String[] items={"All Categories","Deaths","Riots","Sexual Assalts" +
                 "Property Loss","Government Forces"};
+    private String mapdetails, categories, incidents;
+    private UshahidiSettings settings;
+    private UshahidiInstance ushahidiInstance = null;
 
-    public Ushahidi(){}
+    public Ushahidi(){
+        settings = new UshahidiSettings();
+        ushahidiInstance = new UshahidiInstance();
+//        categories = ushahidiInstance.getCategories();
+//        items = this.split(categories, "~");
+//        incidents = ushahidiInstance.getIncidentsByCategoryId(1);
+    }
 
     public void startApp() {
          Display.init(this);
@@ -60,26 +67,15 @@ public class Ushahidi extends MIDlet {
              uiManAlert.setTimeout(50);
          }
 
-         showSplashScreen();
-         //displayMainForm();
-
+         showSplashScreen();//        mapdetails = ushahidiInstance.getGeographicMidpoint();
     }
 
     public void pauseApp() {
     }
 
     public void destroyApp(boolean unconditional) {
+        settings.saveCurrentInstance();
         notifyDestroyed();
-    }
-
-    /**
-     * Exits the Ushahidi MIDlet
-     *
-     * @param exit
-     */
-    public void exitUshahidi(boolean exit) {
-       notifyDestroyed();
-       destroyApp(exit);
     }
 
 //<editor-fold defaultstate="collapsed" desc=" Main form ">
@@ -89,8 +85,8 @@ public class Ushahidi extends MIDlet {
 
         try {
             imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
-            btreport = (new Button("Add Incedent"));
-            btview = (new Button("View Incedents"));
+            btreport = (new Button("Add Incident"));
+            btview = (new Button("View Incidents"));
             btsettings = (new Button("Change Settings"));
 
          //forms
@@ -146,7 +142,7 @@ public class Ushahidi extends MIDlet {
         mainForm.addCommandListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-                exitUshahidi(true);
+                destroyApp(true);
             }
        });
 
@@ -156,11 +152,19 @@ public class Ushahidi extends MIDlet {
 
     //<editor-fold defaultstate="collapsed" desc=" View incident ">
     public void displayViewForm(){
+        mapdetails = ushahidiInstance.getGeographicMidpoint();
+        String[] cood=split(mapdetails, "|");
+        double longitude = Double.parseDouble(cood[0].toString());
+        double latitude = Double.parseDouble(cood[1].toString());
+        Gmapclass gMap = new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg");
+        double[] lanLng={1.0,1.0};
+        
         try {
+            mapImage = gMap.retrieveStaticImage(320,240,longitude,latitude, 8, "png32");
             Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             final Container eventlist = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            imglogo = Image.createImage("/ushahidi/res/map.png");
+            //imglogo = Image.createImage("/ushahidi/res/map.png");
 
             final String [] allcategories={"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
             final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
@@ -168,7 +172,7 @@ public class Ushahidi extends MIDlet {
             final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
             eventlists=new List();
 
-            eventlists=new List(allcategories);          
+            eventlists=new List(allcategories);
 
              eventlist.addComponent(eventlists);
              viewForm = new Form("View Incedents");
@@ -184,7 +188,7 @@ public class Ushahidi extends MIDlet {
 
              tp = new TabbedPane();
 
-            lbmap=(new Label(imglogo));
+            lbmap=(new Label(mapImage));
             mapcategory=new ComboBox(items);
             cate.addComponent(mapcategory);
             mainmenu.addComponent(lbmap);
@@ -198,7 +202,7 @@ public class Ushahidi extends MIDlet {
             viewForm.addComponent("Center", tp);
 
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println(ex.getMessage());
         }
 
         viewForm.show();
@@ -210,29 +214,57 @@ public class Ushahidi extends MIDlet {
 
         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
-                displaydetalis();
+                displayDetails();
             }
         });
 
     }
       //</editor-fold>
+
      //<editor-fold defaultstate="collapsed" desc=" display settings ">
     public void displaySettingsForm(){
-        String [] instances={"Mogadishu","Haiti","Map Kibera","Post Election"};
+         String [] userSetting = settings.getSettings();
+         String [] instances = settings.getTitles();
 
          settingsForm = new Form("Change Settings");
          settingsForm.setLayout(new BorderLayout());
 
-         instanceTextField = new ComboBox(instances);
-         reportsTextField = new TextField();
-         firstNameTextField = new TextField();
-         lastNameTextField = new TextField();
-         emailTextField = new TextField();
+         if (userSetting != null) {
+             instanceComboBox = new ComboBox(instances);
+             instanceComboBox.setSelectedIndex(Integer.parseInt(userSetting[0]));
+             instanceComboBox.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent ae) {
+                    if ((reportsTextField.getText() == null || reportsTextField.getText().equals("")) &&
+                            (firstNameTextField.getText().equals("") || firstNameTextField.getText() == null ) &&
+                            (lastNameTextField.getText().equals("") || lastNameTextField.getText() == null ) &&
+                            (emailTextField.getText().equals("")  || emailTextField.getText() == null ) ) {
+                        settings.getInstanceAddressByName(instanceComboBox.getSelectedItem());
+                        settings.saveSettings(instanceComboBox.getSelectedIndex(), reportsTextField.getText(), firstNameTextField.getText(), lastNameTextField.getText(), emailTextField.getText());
+                    } // end if
+                }
+             });
+
+             reportsTextField = new TextField(userSetting[1]);
+             reportsTextField.setConstraint(TextField.NUMERIC);
+
+             firstNameTextField = new TextField(userSetting[2]);
+             lastNameTextField = new TextField(userSetting[3]);
+             emailTextField = new TextField(userSetting[4]);
+        } else {
+             instanceComboBox = new ComboBox(instances);
+             reportsTextField = new TextField();
+             reportsTextField.setConstraint(TextField.NUMERIC);
+
+             firstNameTextField = new TextField();
+             lastNameTextField = new TextField();
+             emailTextField = new TextField();
+        }
 
          Container formComponents = new Container(new BoxLayout(BoxLayout.Y_AXIS));
          formComponents.addComponent(new Label("Instance"));
-         formComponents.addComponent(instanceTextField);
-         formComponents.addComponent(new Label("No. of instances"));
+         formComponents.addComponent(instanceComboBox);
+         formComponents.addComponent(new Label("No. of reports"));
          formComponents.addComponent(reportsTextField);
          formComponents.addComponent(new Label("First name"));
          formComponents.addComponent(firstNameTextField);
@@ -259,12 +291,14 @@ public class Ushahidi extends MIDlet {
          settingsForm.addCommand(new Command("Save") {
              public void actionPerformed(ActionEvent ev) {
                  //Call function to save settings
+                 settings.getInstanceAddressByName(instanceComboBox.getSelectedItem());
+                 settings.saveSettings(instanceComboBox.getSelectedIndex(), reportsTextField.getText(), firstNameTextField.getText(), lastNameTextField.getText(), emailTextField.getText());
              }
          });
 
-         settingsForm.addCommand(new Command("Add incidence") {
+         settingsForm.addCommand(new Command("Add instance") {
              public void actionPerformed(ActionEvent ev) {
-                addinstance();
+                addInstance();
              }
          });
 
@@ -273,6 +307,7 @@ public class Ushahidi extends MIDlet {
 
     }
       //</editor-fold>
+    
      //<editor-fold defaultstate="collapsed" desc=" Report incident ">
     public void displayReportForm(){
 
@@ -294,7 +329,7 @@ public class Ushahidi extends MIDlet {
             lblogo = new Label(imglogo);
             lblogo.setAlignment(Component.CENTER);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println(ex);
         }
 
         txtitle = new TextField();
@@ -343,9 +378,10 @@ public class Ushahidi extends MIDlet {
 
     }
      //</editor-fold>
+    
      //<editor-fold defaultstate="collapsed" desc=" display the story">
 
-    public void displaydetalis() {
+    public void displayDetails() {
         detailsForm = new Form("Incedent Details");
         detailsForm.setLayout(new BorderLayout());
 
@@ -360,7 +396,7 @@ public class Ushahidi extends MIDlet {
             detailsForm.addComponent(BorderLayout.NORTH, mainmenu);
 
        } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println(ex);
        }
 
         detailsForm.show();
@@ -374,9 +410,9 @@ public class Ushahidi extends MIDlet {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" add an instance">
+    //<editor-fold defaultstate="collapsed" desc="add an instance">
 
-    public void addinstance() {
+    public void addInstance() {
         instance = new Form("Add an Instance");
         instance.setLayout(new BorderLayout());
 
@@ -387,18 +423,20 @@ public class Ushahidi extends MIDlet {
 
             Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             
-instancename = new TextField();
-instanceurl = new TextField();
+        instanceName = new TextField();
+        instanceURL = new TextField("http://");
+        instanceURL.setCursorPosition(7);
+
          mainmenu.addComponent(lblogo);
          mainmenu.addComponent(new Label("Instance Name"));
-         mainmenu.addComponent(instancename);
+         mainmenu.addComponent(instanceName);
            mainmenu.addComponent(new Label("Instance Url"));
-         mainmenu.addComponent(instanceurl);
+         mainmenu.addComponent(instanceURL);
 
             instance.addComponent(BorderLayout.NORTH, mainmenu);
 
        } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println(ex.getMessage());
        }
 
         instance.show();
@@ -410,14 +448,16 @@ instanceurl = new TextField();
         });
          instance.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
-
+                int id = settings.saveInstance(instanceName.getText(), instanceURL.getText());
+                if ( id > 0 ) {
+                    instanceName.setText("");
+                    instanceURL.setText("");
+                } //end if
             }
         });
 
     }
     //</editor-fold>
-
-//    private void
 
     /**
      * Performs a connection test
@@ -425,7 +465,8 @@ instanceurl = new TextField();
      * @return true if connected & false if not
      */
     private boolean connectionTest() {
-        return (new UshahidiInstance().isConnectionAvailable());
+        settings.setUshahidiDeployment();
+        return ushahidiInstance.isConnectionAvailable();
     }
 
     /**
@@ -446,14 +487,15 @@ instanceurl = new TextField();
         splashForm.addCommandListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-                exitUshahidi(true);
+                destroyApp(true);
             }
         });
 
         try {
             Image splashImage = Image.createImage("/ushahidi/res/splash.jpg");
             splashForm.getStyle().setBgImage(splashImage);
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
         }
 
         splashForm.show();
@@ -463,21 +505,20 @@ instanceurl = new TextField();
             splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
                     CommonTransitions.SLIDE_VERTICAL, false, 300));
             displayMainForm();
+
         } else {
             boolean action = Dialog.show("Connection error", "There is no active data connection " +
                     "\n Please check your phone internet settings\n" +
                     " or \n check your credit account.", "Continue Anyway", "Retry");
-if (action==true){
-displayMainForm();
-}
-else{
-showSplashScreen();
-}
 
-System.out.println(action);
+        if (action==true) displayMainForm();
+        else showSplashScreen();
+
+        System.out.println(action);
         }
     }
      //</editor-fold>
+    
  //<editor-fold defaultstate="collapsed" desc="string splitter ">
     public String[] split(String original, String separator) {
     Vector nodes = new Vector();
