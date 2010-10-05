@@ -5,8 +5,11 @@
 
 package ushahidi.core;
 
+import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import org.kxml2.io.KXmlParser;
@@ -27,7 +30,7 @@ public class UshahidiInstance {
         int connectionStatus = 0;
 
         try {
-            String testURL = this.getUshahidiInstance();
+            String testURL = UshahidiInstance.getUshahidiInstance();
             instanceConnection = (HttpConnection) Connector.open(testURL);
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
@@ -47,13 +50,127 @@ public class UshahidiInstance {
 
     public static String getUshahidiInstance() { return currentInstance; }    
 
+    public boolean submitIncident(String incident_title, String incident_description, String[] incident_date, String incident_location, String incident_category) {
+        DataOutputStream dataOutputStream = null;
+//        InputStream is = null;
+        String success = "";
+
+        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api") : ushahidiInstance.concat("/api");
+        String [] setting = (new UshahidiSettings()).getSettings();        
+        String data = "";
+
+        // Prepare the data to be sent to the server
+        String[] params = {
+            "task=report",
+            "&incident_title="+incident_title,
+            "&incident_description="+incident_description,
+            "&incident_date="+getIncidentDate(incident_date),
+            "&incident_hour="+getHour(incident_date[3]),
+            "&incident_minute="+getMinutes(incident_date[3]),
+            "&incident_ampm="+getAmPm(incident_date[3]),
+            "&incident_category="+incident_category,
+            "&latitude=-1.28730007",
+            "&longitude=36.82145118200820",
+            "&location_name="+incident_location,
+            "&person_first="+setting[2],
+            "&person_last="+setting[3],
+            "&person_email="+setting[4],
+            "&resp=xml"
+        };
+
+        // Concatenate the parameters and their values to a string
+        for ( int i = 0; i < params.length; i ++ ) {
+            data = data.concat(params[i]);
+        }
+
+        // Replace any white spaces with the '+' character
+        data = data.replace(' ', '+');
+
+        try {
+            instanceConnection = (HttpConnection) Connector.open(url);
+            instanceConnection.setRequestProperty("User-Agent", "Profile/MIDP-2.0 Configuration/CLDC-1.1");
+            instanceConnection.setRequestProperty("Connection", "keep-alive");
+            instanceConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // multipart/form-data
+            instanceConnection.setRequestProperty("Content-Length", data.getBytes().length+"");
+            instanceConnection.setRequestMethod(HttpConnection.POST);
+            dataOutputStream = instanceConnection.openDataOutputStream();
+            byte[] byteData = data.getBytes();
+
+            // Send the data byte byte
+            for ( int i = 0; i < byteData.length ; i++ ) {
+                dataOutputStream.write(byteData[i]);
+            }
+
+            // process server response
+            Reader reader = null;
+            try {
+                reader = new InputStreamReader(instanceConnection.openInputStream());
+                KXmlParser parser = new KXmlParser();
+                parser.setInput(reader);
+                parser.nextTag();
+                parser.require(XmlPullParser.START_TAG, null, "response");
+
+                while(parser.next() != XmlPullParser.END_DOCUMENT) {
+                    if (parser.getEventType() == XmlPullParser.START_TAG && "success".equals(parser.getName()))
+                        success = parser.nextText();
+                }
+                
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            } finally {
+                if ( reader != null ) reader.close();
+            }
+
+            // Close the DataOutputStream if still open
+            if (dataOutputStream != null) dataOutputStream.close();  // Close DataOutputStream
+//            if (is != null) is.close(); // Close InputStream
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        } finally {            
+            closeHttpConnection();
+        } //end finally
+
+        return (success.equals("true"))? true : false;
+    }
+
+    private String getIncidentDate(String[] rawDate) {
+        String[] monthsOfYear = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        int monthNumber = -1;
+
+        for (int i = 0; i < monthsOfYear.length; i++ ) {
+            if (rawDate[1].equals(monthsOfYear[i])) monthNumber = i + 1;
+        } // end for
+
+        return String.valueOf(monthNumber).concat("/").concat(rawDate[2]).concat("/").concat(rawDate[4]);
+    }
+
+    private String getHour(String time) {
+        String hour = null;
+        String hr = time.substring(0, time.indexOf(":", 1));
+
+        if ( Integer.parseInt(hr) > 12 ) hour = String.valueOf(Integer.parseInt(hr) - 12);
+        else if ( Integer.parseInt(hr) == 0 ) hour = "12";
+        else hour = hr;
+                
+        return hour;
+    }
+
+    private String getMinutes(String time) {
+        return time.substring(time.indexOf(":", 1) + 1, time.indexOf(":", 4));
+    }
+
+    private String getAmPm(String time) {
+        String hour = time.substring(0, time.indexOf(":", 1));        
+        return ( (Integer.parseInt(hour) >= 12) && (Integer.parseInt(hour) <= 23) )? "pm": "am";
+    }
+
     /**
      * Retries all categories available in an Ushahidi instance
      *
      * @return An XML with the categories in ascending order
      */
     public String getCategories() {
-        // Handles the forward slash at the end of the instance.
         String ushahidiInstance = getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
         String categories = null;
@@ -67,18 +184,13 @@ public class UshahidiInstance {
             parser.require(XmlPullParser.START_TAG, null, "response");
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if ("category".equals(parser.getName())) parser.next();
-                        if("id".equals(parser.getName())) {
+                if(parser.getEventType() == XmlPullParser.START_TAG) {                       
                            if (categories == null) categories = parser.nextText() + "|";
                            else categories += parser.nextText() + "|";
                         } else if("title".equals(parser.getName())) categories += parser.nextText() + "|";
                         else if("description".equals(parser.getName())) categories += parser.nextText() + "|";
                         else if("color".equals(parser.getName())) categories += parser.nextText() + "~";
-                }
             }
-            
-//                System.out.println(categories);
                 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -612,6 +724,19 @@ public class UshahidiInstance {
         } finally {
             closeHttpConnection();
         }
+    }
+
+    private String[] trimOutput(Vector vector, int objectSize, int fieldIndex) {
+        String[] trimmedOutput = null;
+        String[] object = new String[objectSize];
+        trimmedOutput = new String[vector.size()];
+
+        for ( int i = 0; i < vector.size(); i++ ) {
+            object = (String[]) vector.elementAt(i);
+            trimmedOutput[i] = object[fieldIndex];
+        }
+
+        return trimmedOutput;
     }
 
     public String getVersion() {

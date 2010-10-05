@@ -48,7 +48,19 @@ public class Ushahidi extends MIDlet {
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
 
+    /**
+     * Ushahidi Class constructor<p>
+     * Instantiates two objects of the classes UshahidiSettings
+     * and UshahidiInstance.
+     *
+     * @param null
+     * @retun void
+     */
     public Ushahidi(){
+        /**
+         * Creates instances of the ushahidi.core.UshahidiSettings.java and
+         * ushahidi.core.UshahidiInstance.java classes.
+         */
         settings = new UshahidiSettings();
         ushahidiInstance = new UshahidiInstance();
 //        categories = ushahidiInstance.getCategories();
@@ -67,7 +79,7 @@ public class Ushahidi extends MIDlet {
              uiManAlert.setTimeout(50);
          }
 
-         showSplashScreen();//        mapdetails = ushahidiInstance.getGeographicMidpoint();
+         showSplashScreen();
     }
 
     public void pauseApp() {
@@ -232,18 +244,6 @@ public class Ushahidi extends MIDlet {
          if (userSetting != null) {
              instanceComboBox = new ComboBox(instances);
              instanceComboBox.setSelectedIndex(Integer.parseInt(userSetting[0]));
-             instanceComboBox.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent ae) {
-                    if ((reportsTextField.getText() == null || reportsTextField.getText().equals("")) &&
-                            (firstNameTextField.getText().equals("") || firstNameTextField.getText() == null ) &&
-                            (lastNameTextField.getText().equals("") || lastNameTextField.getText() == null ) &&
-                            (emailTextField.getText().equals("")  || emailTextField.getText() == null ) ) {
-                        settings.getInstanceAddressByName(instanceComboBox.getSelectedItem());
-                        settings.saveSettings(instanceComboBox.getSelectedIndex(), reportsTextField.getText(), firstNameTextField.getText(), lastNameTextField.getText(), emailTextField.getText());
-                    } // end if
-                }
-             });
 
              reportsTextField = new TextField(userSetting[1]);
              reportsTextField.setConstraint(TextField.NUMERIC);
@@ -310,13 +310,12 @@ public class Ushahidi extends MIDlet {
     
      //<editor-fold defaultstate="collapsed" desc=" Report incident ">
     public void displayReportForm(){
-
-        mydate=new Date();
+        mydate = new Date();
         String stringdate=mydate.toString();
         String [] dateony=split(stringdate," ");
         String today=dateony[0]+" "+dateony[1]+" "+dateony[2]+" "+dateony[3]+" "+dateony[5];
 
-        reportForm = new Form("Add Incedents");
+        reportForm = new Form("Report incident");
         reportForm.setLayout(new BorderLayout());
         reportForm.setTransitionInAnimator(
         CommonTransitions.createSlide(
@@ -339,7 +338,6 @@ public class Ushahidi extends MIDlet {
         txdate = new TextField(today);
 
         category=new ComboBox(items);
-
 
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -372,7 +370,15 @@ public class Ushahidi extends MIDlet {
 
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
-
+                String [] dateField = split(txdate.getText(), " ");
+                boolean saved = ushahidiInstance.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), category.getSelectedItem().toString());
+                if (saved)                    
+                    Dialog.show("Succesful", "Your report was succesfully submitted", Dialog.TYPE_CONFIRMATION, null, "Ok", "Cancel");
+                else
+                    Dialog.show("Failure", "Your report wasn't succesfully submitted", "Ok", "Cancel");
+                txtitle.setText(""); txdescri.setText("");
+                txlocation.setText("");
+                category.setSelectedIndex(0);
             }
         });
 
@@ -460,9 +466,9 @@ public class Ushahidi extends MIDlet {
     //</editor-fold>
 
     /**
-     * Performs a connection test
+     * Performs a data connection test
      *
-     * @return true if connected & false if not
+     * @return true if there is an active data connection
      */
     private boolean connectionTest() {
         settings.setUshahidiDeployment();
@@ -475,7 +481,6 @@ public class Ushahidi extends MIDlet {
      *
      * @return No value is returned.
      */
-
    //<editor-fold defaultstate="collapsed" desc=" display SplashScreens ">
     private void showSplashScreen() {
 
@@ -520,6 +525,12 @@ public class Ushahidi extends MIDlet {
      //</editor-fold>
     
  //<editor-fold defaultstate="collapsed" desc="string splitter ">
+    /**
+     * Accepts a String and a separator and returns an array of type String
+     * @param string
+     * @param separator
+     * @return String[]
+     */
     public String[] split(String original, String separator) {
     Vector nodes = new Vector();
 
@@ -542,4 +553,5 @@ public class Ushahidi extends MIDlet {
     return result;
 }
      //</editor-fold>
+
 }
