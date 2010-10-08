@@ -88,7 +88,6 @@ public class UshahidiInstance {
             System.err.println(ex.getMessage());
         }
 
-        System.out.println(geoCoordinates[0]);
 
         // Prepare the data to be sent to the server
         String[] params = {
@@ -100,8 +99,8 @@ public class UshahidiInstance {
             "&incident_minute="+getMinutes(incident_date[3]),
             "&incident_ampm="+getAmPm(incident_date[3]),
             "&incident_category="+incident_category,
-            "&latitude=-1.28730007",
-            "&longitude=36.82145118200820",
+            "&latitude="+geoCoordinates[0],
+            "&longitude="+geoCoordinates[1],
             "&location_name="+incident_location,
             "&person_first="+setting[2],
             "&person_last="+setting[3],

@@ -46,7 +46,7 @@ public class Ushahidi extends MIDlet {
     private Date mydate;
     private  String[] items={"All Categories","Deaths","Riots","Sexual Assalts" +
                 "Property Loss","Government Forces"};
-    private String mapdetails, categories, incidents;
+    private String categories, incidents;
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
     
@@ -55,7 +55,6 @@ public class Ushahidi extends MIDlet {
      * Instantiates two objects of the classes UshahidiSettings
      * and UshahidiInstance.
      *
-     * @param null
      * @retun void
      */
     public Ushahidi(){
@@ -92,7 +91,7 @@ public class Ushahidi extends MIDlet {
         notifyDestroyed();
     }
 
-//<editor-fold defaultstate="collapsed" desc=" Main form ">
+    //<editor-fold defaultstate="collapsed" desc=" Main form ">
     public void displayMainForm(){
         mainForm = new Form("Ushahidi");
         mainForm.setLayout(new BorderLayout());
@@ -103,8 +102,7 @@ public class Ushahidi extends MIDlet {
             btview = (new Button("View Incidents"));
             btsettings = (new Button("Change Settings"));
 
-         //forms
-
+         // Forms
         lbseparator=new Label("    ");
                     lblogo = new Label(imglogo);
         lblogo.setAlignment(Component.CENTER);
@@ -166,61 +164,50 @@ public class Ushahidi extends MIDlet {
 
     //<editor-fold defaultstate="collapsed" desc=" View incident ">
     public void displayViewForm() {
-        mapdetails = ushahidiInstance.getGeographicMidpoint();
-        Gmapclass gMap = null;
+
+        if(!isPrefetched())
+            displayMainForm();
         
-        String[] cood=split(mapdetails, "|");
-        double longitude = Double.parseDouble(cood[0].toString());
-        double latitude = Double.parseDouble(cood[1].toString());
-        
-        try {                
-            gMap = new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg");
-            double[] lanLng={1.0,1.0};
+        mapImage = getMap();
 
-            mapImage = gMap.retrieveStaticImage(320, 240, longitude,latitude, 8, "png32");
+        Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        //imglogo = Image.createImage("/ushahidi/res/map.png");
 
-            Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            //imglogo = Image.createImage("/ushahidi/res/map.png");
-
-            final String [] allcategories={"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
-            final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
-            final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
-            final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
+        final String [] allcategories={"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
+        final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
+        final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
+        final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
 //            eventLists = new List();
 
-            eventLists = new List(allcategories);
+        eventLists = new List(allcategories);
 
-             eventList.addComponent(eventLists);
-             viewForm = new Form("View Incedents");
-             viewForm.setLayout(new BorderLayout());
-             viewForm.setScrollable(false);
-             viewForm.setTransitionOutAnimator(
-             CommonTransitions.createSlide(
-             CommonTransitions.SLIDE_HORIZONTAL, true, 500));
+         eventList.addComponent(eventLists);
+         viewForm = new Form("View Incedents");
+         viewForm.setLayout(new BorderLayout());
+         viewForm.setScrollable(false);
+         viewForm.setTransitionOutAnimator(
+         CommonTransitions.createSlide(
+         CommonTransitions.SLIDE_HORIZONTAL, true, 500));
 
-             viewForm.setTransitionInAnimator(
-             CommonTransitions.createSlide(
-             CommonTransitions.SLIDE_HORIZONTAL, true, 500));
+         viewForm.setTransitionInAnimator(
+         CommonTransitions.createSlide(
+         CommonTransitions.SLIDE_HORIZONTAL, true, 500));
 
-             tp = new TabbedPane();
+         tp = new TabbedPane();
 
-            lbmap=(new Label(mapImage));
-            mapcategory=new ComboBox(items);
-            cate.addComponent(mapcategory);
-            mainmenu.addComponent(lbmap);
-            //mainmenu.addComponent(eventLists);
+        lbmap=(new Label(mapImage));
+        mapcategory=new ComboBox(items);
+        cate.addComponent(mapcategory);
+        mainmenu.addComponent(lbmap);
+        //mainmenu.addComponent(eventLists);
 
-            tp.addTab("Reports Map", mainmenu);
-            tp.addTab("Reports List", eventList);
+        tp.addTab("Reports Map", mainmenu);
+        tp.addTab("Reports List", eventList);
 
-            viewForm.addComponent(BorderLayout.NORTH, cate);
-            viewForm.addComponent("Center", tp);
-
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
-        }
+        viewForm.addComponent(BorderLayout.NORTH, cate);
+        viewForm.addComponent("Center", tp);
 
         viewForm.show();
         viewForm.addCommand(new Command("Back") {
@@ -314,7 +301,7 @@ public class Ushahidi extends MIDlet {
       //</editor-fold>
 
      //<editor-fold defaultstate="collapsed" desc=" Report incident ">
-    public void displayReportForm(){        
+    public void displayReportForm(){
         String today = getDate();
 
         reportForm = new Form("Report incident");
@@ -492,6 +479,23 @@ public class Ushahidi extends MIDlet {
         String [] dateony=split(new Date().toString()," ");
         return dateony[0]+" "+dateony[1]+" "+dateony[2]+" "+dateony[3]+" "+dateony[5];
     }
+
+    private void preFetchData() {
+        Thread t = new Thread(new Runnable() {
+
+            public void run() {
+                setPrefetched(false);
+                try {
+                    loadMap();
+                } catch (IOException ex) {
+                    System.err.println(ex.getMessage());
+                }
+                setPrefetched(true);
+            }
+
+        });
+        t.start();
+    }
     
     /**
      *Checks if there is a data connection as it displays the
@@ -501,7 +505,6 @@ public class Ushahidi extends MIDlet {
      */
    //<editor-fold defaultstate="collapsed" desc=" display SplashScreens ">
     private void showSplashScreen() {
-
         splashForm = new Form();
         splashForm.setLayout(new BorderLayout());
         Command exitCommand = new Command("Exit");
@@ -525,16 +528,31 @@ public class Ushahidi extends MIDlet {
 
         //Performing a connection test
         if(connectionTest()) {
+            // Pre-fetch data that would otherwise take long to load
+            preFetchData();
+
+            // Loop if pre-fetching is not complete
+            do {
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            } while(!isPrefetched() && (Thread.activeCount() > 1));
+            
+            System.out.println("Prefetched: " + isPrefetched());
+
+            // Once there data is prefetched, open the main form
             splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
                     CommonTransitions.SLIDE_VERTICAL, false, 300));
             displayMainForm();
-
+            
         } else {
             boolean action = Dialog.show("Connection error", "There is no active data connection " +
                     "\n Please check your phone internet settings\n" +
                     " or \n check your credit account.", "Continue Anyway", "Retry");
 
-        if (action==true) displayMainForm();
+        if (action == true) displayMainForm();
         else showSplashScreen();
 
         System.out.println(action);
@@ -571,4 +589,29 @@ public class Ushahidi extends MIDlet {
     return result;
 }
      //</editor-fold>
+
+
+    /**@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @ Methods that hold pre-fetched data come here @
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+    private void setPrefetched(boolean prefetched) {
+        this.prefetched = prefetched;
+    }
+
+    private boolean isPrefetched() { return prefetched; }
+
+    private void loadMap() throws IOException {
+        String mapData = ushahidiInstance.getGeographicMidpoint();         
+        String[] mapDetails = split(mapData, "|");
+        double longitude = Double.parseDouble(mapDetails[0].toString());
+        double latitude = Double.parseDouble(mapDetails[1].toString());
+        Gmapclass gMap = new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg");
+        this.map = gMap.retrieveStaticImage(320, 240, longitude,latitude, 8, "png32");
+    }
+
+    private Image getMap() { return map; }
+
+    private Image map = null;
+    private boolean prefetched = false;
 }
