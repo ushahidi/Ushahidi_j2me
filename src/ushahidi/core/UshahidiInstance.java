@@ -6,7 +6,6 @@
 package ushahidi.core;
 
 import java.io.DataOutputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Vector;
@@ -22,9 +21,10 @@ import org.xmlpull.v1.XmlPullParser;
 public class UshahidiInstance {
 
     /**
-     *Tests data connection availability by connecting to http://ushahidi.com/
+     *Tests data connection availability by connecting to the last used
+     * Ushahidi instance. Uses http://demo.ushahidi.com for the first time use
      * 
-     * @return true if a HTTP_CODE 200 is returned and false if any other code is returned
+     * @return true if a HTTP_CODE 200 is returned and false otherwise
      */
     public boolean isConnectionAvailable() {
         int connectionStatus = 0;
@@ -44,21 +44,51 @@ public class UshahidiInstance {
         return (connectionStatus == HttpConnection.HTTP_OK)? true: false;
     }
 
+    /**
+     * Sets the current instance address
+     *
+     * @param currentInstance
+     */
     public static void setUshahidiInstance(String currentInstance) {
         UshahidiInstance.currentInstance = currentInstance;
     }
 
+    /**
+     * Returns active Ushahidi instance address
+     *
+     * @return URL of current/active Ushahidi instance
+     */
     public static String getUshahidiInstance() { return currentInstance; }    
 
+    /**
+     * This method submits reports to an instance of an Ushahidi engine based on
+     * the data collected from a user-filled form and the settings information
+     * 
+     * @param incident_title
+     * @param incident_description
+     * @param incident_date
+     * @param incident_location
+     * @param incident_category
+     * @return if the report was saved successfully(i.e. true / false)
+     */
     public boolean submitIncident(String incident_title, String incident_description, String[] incident_date, String incident_location, String incident_category) {
         DataOutputStream dataOutputStream = null;
-//        InputStream is = null;
         String success = "";
+        double[] geoCoordinates = null;
 
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api") : ushahidiInstance.concat("/api");
         String [] setting = (new UshahidiSettings()).getSettings();        
         String data = "";
+
+        // Retrieve Geographical co-ordianates i.e. latitude and longitude
+        try {
+            geoCoordinates = (new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg")).geocodeAddress(incident_location);
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
+
+        System.out.println(geoCoordinates[0]);
 
         // Prepare the data to be sent to the server
         String[] params = {
@@ -124,7 +154,6 @@ public class UshahidiInstance {
 
             // Close the DataOutputStream if still open
             if (dataOutputStream != null) dataOutputStream.close();  // Close DataOutputStream
-//            if (is != null) is.close(); // Close InputStream
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {            
@@ -199,6 +228,44 @@ public class UshahidiInstance {
         }
 
         return categories;
+    }
+
+    public Vector getAllCategories() {
+        String ushahidiInstance = getUshahidiInstance();
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
+        String[] categories = null;
+        Vector categoryVector = new Vector();
+        
+        try {
+            instanceConnection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            KXmlParser parser = new KXmlParser();
+            parser.setInput(reader);
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, null, "response");
+            
+            while (parser.next() != XmlPullParser.END_DOCUMENT) {
+                if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equals("category")) {
+                    categories = new String[4];
+                    if (categories == null) categories[0] = parser.nextText();
+                    else if("title".equals(parser.getName())) categories[1] = parser.nextText();
+                    else if("description".equals(parser.getName())) categories[2] = parser.nextText();
+                    else if("color".equals(parser.getName())) categories[3] = parser.nextText();
+                    categoryVector.addElement(categories);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        } finally {
+            closeHttpConnection();
+        }
+
+        return categoryVector;
+    }
+
+    public String[] getAllCategoriesTitles() {
+        return trimOutput(getAllCategories(), 4, 1);
     }
 
     public String getCategoryById(int id) {
@@ -472,35 +539,35 @@ public class UshahidiInstance {
         }
     }
 
-    public String getIncidentsByCategoryId(int categoryId) {
-        String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catid&id="+categoryId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catid&id="+categoryId+"&resp=xml");
-        String incidents = null;
-        
-        try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
-            KXmlParser parser = new KXmlParser();
-            parser.setInput(reader);
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, null, "response");
-
-            while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("incident".equals(parser.getName())) parser.next();
-                        if("id".equals(parser.getName())) {
-                            if (incidents == null) incidents = parser.nextText() + "|";
-                            else incidents += parser.nextText() + "|";
-                        }
-                        else if("title".equals(parser.getName())) incidents += parser.nextText() + "|";
-                        else if("description".equals(parser.getName())) incidents += parser.nextText() + "|";
-                        else if("date".equals(parser.getName())) incidents += parser.nextText() + "|";
-                        else if("mode".equals(parser.getName())) incidents += parser.nextText() + "|";
-                        else if("active".equals(parser.getName())) incidents += parser.nextText() + "|";
-                        else if("verified".equals(parser.getName())) incidents += parser.nextText() + "|";
-                        else if("location".equals(parser.getName())) parser.next(); // Location
+//    public String getIncidentsByCategoryId(int categoryId) {
+//        String ushahidiInstance = getUshahidiInstance();
+//        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catid&id="+categoryId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catid&id="+categoryId+"&resp=xml");
+//        String incidents = null;
+//
+//        try {
+//            instanceConnection = (HttpConnection) Connector.open(url);
+//            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+//            KXmlParser parser = new KXmlParser();
+//            parser.setInput(reader);
+//            parser.nextTag();
+//            parser.require(XmlPullParser.START_TAG, null, "response");
+//
+//            while (parser.next() != XmlPullParser.END_DOCUMENT) {
+//                if(parser.getEventType() == XmlPullParser.START_TAG) {
+//                    if("incident".equals(parser.getName())) parser.next();
+//                        if("id".equals(parser.getName())) {
+//                            if (incidents == null) incidents = parser.nextText() + "|";
+//                            else incidents += parser.nextText() + "|";
+//                        }
+//                        else if("title".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("description".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("date".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("mode".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("active".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("verified".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("location".equals(parser.getName())) parser.next(); // Location
 //                        else if("id".equals(parser.getName())) System.out.println(parser.nextText());
-                        else if("name".equals(parser.getName())) incidents += parser.nextText() + "|";
+//                        else if("name".equals(parser.getName())) incidents += parser.nextText() + "|";
 //                        else if("latitude".equals(parser.getName())) System.out.println(parser.nextText());
 //                        else if("longitude".equals(parser.getName())) System.out.println(parser.nextText());
 //                        else if("categories".equals(parser.getName())) parser.next(); //Categories
@@ -513,17 +580,17 @@ public class UshahidiInstance {
 //                        else if("mode".equals(parser.getName())) System.out.println(parser.nextText());
 //                        else if("active".equals(parser.getName())) System.out.println(parser.nextText());
 //                        else if("verified".equals(parser.getName())) System.out.println(parser.nextText());
-                }
-            }            
-            
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        } finally {
-            closeHttpConnection();
-        }
-        
-        return incidents;
-    }
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            System.err.println(e.getMessage());
+//        } finally {
+//            closeHttpConnection();
+//        }
+//
+//        return incidents;
+//    }
 
     public void getIncidentsByCategoryName(int categoryName) {
         String ushahidiInstance = getUshahidiInstance();
@@ -637,9 +704,16 @@ public class UshahidiInstance {
         }
     }
 
-    public void getIncidentCount() {
+    /**
+     *  Retrieves number of approved Ushahidi instances from  an instance of
+     * the Ushahidi engine.
+     * 
+     * @return Number of approved incident reports
+     */
+    public int getIncidentCount() {
         String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incedentcount&resp=xml") : ushahidiInstance.concat("/api?task=incedentcount&resp=xml");
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidentcount&resp=xml") : ushahidiInstance.concat("/api?task=incidentcount&resp=xml");
+        String incidentCount = null;
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -651,10 +725,12 @@ public class UshahidiInstance {
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("title".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("description".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("color".equals(parser.getName())) System.out.println(parser.nextText());
+                    if("count".equals(parser.getName())) incidentCount = parser.nextText();
+                    else if("code".equals(parser.getName())) {
+                        if (! parser.nextText().equals("0")) {
+                            incidentCount = null;
+                        }
+                    }
                 }
             }
 
@@ -663,6 +739,8 @@ public class UshahidiInstance {
         } finally {
             closeHttpConnection();
         }
+
+        return Integer.parseInt(incidentCount);
     }
 
     public String getGeographicMidpoint() {
@@ -726,9 +804,9 @@ public class UshahidiInstance {
         }
     }
 
-    private String[] trimOutput(Vector vector, int objectSize, int fieldIndex) {
+    private String[] trimOutput(Vector vector, int objectFields, int fieldIndex) {
         String[] trimmedOutput = null;
-        String[] object = new String[objectSize];
+        String[] object = new String[objectFields];
         trimmedOutput = new String[vector.size()];
 
         for ( int i = 0; i < vector.size(); i++ ) {
@@ -739,6 +817,11 @@ public class UshahidiInstance {
         return trimmedOutput;
     }
 
+    /**
+     * Retrieves version number of Ushahidi engine in use
+     *
+     * @return version number
+     */
     public String getVersion() {
         String version = null;
         String ushahidiInstance = getUshahidiInstance();
@@ -774,6 +857,7 @@ public class UshahidiInstance {
             if (instanceConnection != null) instanceConnection.close();
         } catch (Exception e) {
             //Exception handler here
+            System.err.println(e.getMessage());
         }
     }
 

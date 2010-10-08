@@ -23,6 +23,8 @@ import ushahidi.core.Gmapclass;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -37,7 +39,7 @@ public class Ushahidi extends MIDlet {
     private Image imglogo, mapImage;
     private Label lblogo,lblist1,lblist2,lblist3,lblist4,lblist5,lbmap,lbseparator;
     private TabbedPane tp = null;
-    private List eventlists;
+    private List eventLists;
     private ComboBox category,mapcategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate,txcatego,instanceName,instanceURL;
     private TextArea txdescri;
@@ -47,7 +49,7 @@ public class Ushahidi extends MIDlet {
     private String mapdetails, categories, incidents;
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
-
+    
     /**
      * Ushahidi Class constructor<p>
      * Instantiates two objects of the classes UshahidiSettings
@@ -163,30 +165,34 @@ public class Ushahidi extends MIDlet {
      //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" View incident ">
-    public void displayViewForm(){
+    public void displayViewForm() {
         mapdetails = ushahidiInstance.getGeographicMidpoint();
+        Gmapclass gMap = null;
+        
         String[] cood=split(mapdetails, "|");
         double longitude = Double.parseDouble(cood[0].toString());
         double latitude = Double.parseDouble(cood[1].toString());
-        Gmapclass gMap = new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg");
-        double[] lanLng={1.0,1.0};
         
-        try {
-            mapImage = gMap.retrieveStaticImage(320,240,longitude,latitude, 8, "png32");
+        try {                
+            gMap = new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg");
+            double[] lanLng={1.0,1.0};
+
+            mapImage = gMap.retrieveStaticImage(320, 240, longitude,latitude, 8, "png32");
+
             Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            final Container eventlist = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+            final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             //imglogo = Image.createImage("/ushahidi/res/map.png");
 
             final String [] allcategories={"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
             final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
             final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
             final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
-            eventlists=new List();
+//            eventLists = new List();
 
-            eventlists=new List(allcategories);
+            eventLists = new List(allcategories);
 
-             eventlist.addComponent(eventlists);
+             eventList.addComponent(eventLists);
              viewForm = new Form("View Incedents");
              viewForm.setLayout(new BorderLayout());
              viewForm.setScrollable(false);
@@ -204,13 +210,12 @@ public class Ushahidi extends MIDlet {
             mapcategory=new ComboBox(items);
             cate.addComponent(mapcategory);
             mainmenu.addComponent(lbmap);
-            //mainmenu.addComponent(eventlists);
+            //mainmenu.addComponent(eventLists);
 
-            tp.addTab("Incedent Map",mainmenu);
-            tp.addTab("Incedent List",eventlist);
-//            tp.addTab("Calender", new Calendar());
+            tp.addTab("Reports Map", mainmenu);
+            tp.addTab("Reports List", eventList);
 
-            viewForm.addComponent(BorderLayout.NORTH,cate);
+            viewForm.addComponent(BorderLayout.NORTH, cate);
             viewForm.addComponent("Center", tp);
 
         } catch (IOException ex) {
@@ -307,13 +312,10 @@ public class Ushahidi extends MIDlet {
 
     }
       //</editor-fold>
-    
+
      //<editor-fold defaultstate="collapsed" desc=" Report incident ">
-    public void displayReportForm(){
-        mydate = new Date();
-        String stringdate=mydate.toString();
-        String [] dateony=split(stringdate," ");
-        String today=dateony[0]+" "+dateony[1]+" "+dateony[2]+" "+dateony[3]+" "+dateony[5];
+    public void displayReportForm(){        
+        String today = getDate();
 
         reportForm = new Form("Report incident");
         reportForm.setLayout(new BorderLayout());
@@ -337,7 +339,7 @@ public class Ushahidi extends MIDlet {
         txlocation = new TextField();
         txdate = new TextField(today);
 
-        category=new ComboBox(items);
+        category = new ComboBox(items);
 
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -362,8 +364,19 @@ public class Ushahidi extends MIDlet {
         reportForm.addComponent(BorderLayout.SOUTH, buttonBar);
         reportForm.show();
 
+        // Update the time field every one second
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+
+            public void run() {
+                txdate.setText(getDate());
+                txdate.repaint();
+            }
+        }, 1000, 1000); // delay, iterate
+        
         reportForm.addCommand(new Command("Back") {
             public void actionPerformed(ActionEvent ev) {
+                timer.cancel();
                 displayMainForm();
             }
         });
@@ -388,7 +401,7 @@ public class Ushahidi extends MIDlet {
      //<editor-fold defaultstate="collapsed" desc=" display the story">
 
     public void displayDetails() {
-        detailsForm = new Form("Incedent Details");
+        detailsForm = new Form("Incident Details");
         detailsForm.setLayout(new BorderLayout());
 
         try {
@@ -475,6 +488,11 @@ public class Ushahidi extends MIDlet {
         return ushahidiInstance.isConnectionAvailable();
     }
 
+    private String getDate() {
+        String [] dateony=split(new Date().toString()," ");
+        return dateony[0]+" "+dateony[1]+" "+dateony[2]+" "+dateony[3]+" "+dateony[5];
+    }
+    
     /**
      *Checks if there is a data connection as it displays the
      * Splash screen.
@@ -553,5 +571,4 @@ public class Ushahidi extends MIDlet {
     return result;
 }
      //</editor-fold>
-
 }
