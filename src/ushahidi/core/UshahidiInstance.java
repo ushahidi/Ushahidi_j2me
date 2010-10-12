@@ -71,6 +71,7 @@ public class UshahidiInstance {
      * @param incident_category
      * @return if the report was saved successfully(i.e. true / false)
      */
+    //<editor-fold defaultstate="collapsed" desc="Submit report">
     public boolean submitIncident(String incident_title, String incident_description, String[] incident_date, String incident_location, String incident_category) {
         DataOutputStream dataOutputStream = null;
         String success = "";
@@ -161,6 +162,7 @@ public class UshahidiInstance {
 
         return (success.equals("true"))? true : false;
     }
+    //</editor-fold>
 
     private String getIncidentDate(String[] rawDate) {
         String[] monthsOfYear = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -198,10 +200,12 @@ public class UshahidiInstance {
      *
      * @return An XML with the categories in ascending order
      */
-    public String getCategories() {
+    public UshahidiInstance getCategories() {
+        System.out.println("Fetching categories...");
         String ushahidiInstance = getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
-        String categories = null;
+        instanceCategories = new Vector();
+        String id = null, title = null, desc = null, color = null;
         
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -212,12 +216,25 @@ public class UshahidiInstance {
             parser.require(XmlPullParser.START_TAG, null, "response");
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if(parser.getEventType() == XmlPullParser.START_TAG) {                       
-                           if (categories == null) categories = parser.nextText() + "|";
-                           else categories += parser.nextText() + "|";
-                        } else if("title".equals(parser.getName())) categories += parser.nextText() + "|";
-                        else if("description".equals(parser.getName())) categories += parser.nextText() + "|";
-                        else if("color".equals(parser.getName())) categories += parser.nextText() + "~";
+                if(parser.getEventType() == XmlPullParser.START_TAG) {
+                    if (parser.getName().equals("category"))
+                        parser.nextTag();
+
+                    if (parser.getName().equals("id"))
+                        id = parser.nextText();
+
+                    if (parser.getName().equals("title"))
+                        title = parser.nextText();
+
+                    if (parser.getName().equals("description"))
+                        desc = parser.nextText();
+
+                    if (parser.getName().equals("color")) {
+                        color = parser.nextText();
+                        instanceCategories.addElement(new String[] {id, title, desc, color});
+                    }
+                    
+                }
             }
                 
         } catch (Exception e) {
@@ -226,45 +243,29 @@ public class UshahidiInstance {
             closeHttpConnection();
         }
 
-        return categories;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                System.err.println(ex.getMessage());
+            }
+        } while(isFetching());
+
+        return this;
     }
 
-    public Vector getAllCategories() {
-        String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
-        String[] categories = null;
-        Vector categoryVector = new Vector();
-        
-        try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
-            KXmlParser parser = new KXmlParser();
-            parser.setInput(reader);
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, null, "response");
-            
-            while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equals("category")) {
-                    categories = new String[4];
-                    if (categories == null) categories[0] = parser.nextText();
-                    else if("title".equals(parser.getName())) categories[1] = parser.nextText();
-                    else if("description".equals(parser.getName())) categories[2] = parser.nextText();
-                    else if("color".equals(parser.getName())) categories[3] = parser.nextText();
-                    categoryVector.addElement(categories);
-                }
-            }
+    public String[] getTitles(int fieldIndex) {
+        String[] titles = null;
 
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        } finally {
-            closeHttpConnection();
+        Vector categories = this.instanceCategories;
+        titles = new String[categories.size()];
+        
+        for ( int i = 0; i < categories.size(); i++ ) {
+            String[] category = (String[]) categories.elementAt(i);
+            titles[i] = category[fieldIndex];
         }
 
-        return categoryVector;
-    }
-
-    public String[] getAllCategoriesTitles() {
-        return trimOutput(getAllCategories(), 4, 1);
+        return titles;
     }
 
     public String getCategoryById(int id) {
@@ -803,18 +804,18 @@ public class UshahidiInstance {
         }
     }
 
-    private String[] trimOutput(Vector vector, int objectFields, int fieldIndex) {
-        String[] trimmedOutput = null;
-        String[] object = new String[objectFields];
-        trimmedOutput = new String[vector.size()];
-
-        for ( int i = 0; i < vector.size(); i++ ) {
-            object = (String[]) vector.elementAt(i);
-            trimmedOutput[i] = object[fieldIndex];
-        }
-
-        return trimmedOutput;
-    }
+//    private String[] trimOutput(Vector vector, int fieldIndex) {
+////        String trimmedOutput = "";
+//        Vector currVector = vector;
+//
+//        for ( int i = 0; i < currVector.size(); i++ ) {
+//            String[] object = (String[]) currVector.elementAt(i);
+//
+////            System.out.println(object[0]);
+//        }
+//
+//        return new String[]{};
+//    }
 
     /**
      * Retrieves version number of Ushahidi engine in use
@@ -860,6 +861,14 @@ public class UshahidiInstance {
         }
     }
 
+    private void setFetching(boolean fetching) {
+        this.fetching = fetching;
+    }
+
+    private boolean isFetching() { return fetching; }
+
+    private static boolean fetching = false;
+    private Vector instanceCategories = null;
     private HttpConnection instanceConnection = null;
     private static String currentInstance;
 }
