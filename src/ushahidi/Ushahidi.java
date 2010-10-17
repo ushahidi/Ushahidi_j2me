@@ -10,6 +10,7 @@ import com.sun.lwuit.*;
 import com.sun.lwuit.animations.CommonTransitions;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
+import com.sun.lwuit.events.SelectionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.plaf.UIManager;
@@ -36,13 +37,13 @@ public class Ushahidi extends MIDlet {
     private Button btreport,btview,btsettings,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
-    private Label logoLabel, lbmap, lbseparator;
+    private Label logoLabel, mapLabel, lbseparator;
     private TabbedPane tp = null;
-    private List eventLists;
-    private ComboBox category,mapcategory,instanceComboBox;
+    private List incidentsList;
+    private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
-    private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts" +
+    private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
@@ -127,17 +128,17 @@ public class Ushahidi extends MIDlet {
         //textfields
 
         //containers
-        Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        mainmenu.addComponent(logoLabel);
-        mainmenu.addComponent(lbseparator=new Label("    "));
+        mainMenu.addComponent(logoLabel);
+        mainMenu.addComponent(lbseparator=new Label("    "));
 
-        mainmenu.addComponent(btreport);
-        mainmenu.addComponent(lbseparator=new Label("    "));
-        mainmenu.addComponent(btview);
-        mainmenu.addComponent(lbseparator=new Label("    "));
-        mainmenu.addComponent(btsettings);
-        mainForm.addComponent(BorderLayout.CENTER, mainmenu);
+        mainMenu.addComponent(btreport);
+        mainMenu.addComponent(lbseparator=new Label("    "));
+        mainMenu.addComponent(btview);
+        mainMenu.addComponent(lbseparator=new Label("    "));
+        mainMenu.addComponent(btsettings);
+        mainForm.addComponent(BorderLayout.CENTER, mainMenu);
 
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
@@ -159,11 +160,11 @@ public class Ushahidi extends MIDlet {
     //<editor-fold defaultstate="collapsed" desc="View incidents ">
     public void displayViewForm() {
 
-        if(!isPrefetching())
-            displayMainForm();
+//        if(!isPrefetching())
+//            displayMainForm();
         
         Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+        Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         //imglogo = Image.createImage("/ushahidi/res/map.png");
 
@@ -171,7 +172,7 @@ public class Ushahidi extends MIDlet {
         final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
         final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
         final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
-//            eventLists = new List();
+//            incidentsList = new List();
 
         // Check if categories are loaded
         if (isLoaded())
@@ -187,9 +188,15 @@ public class Ushahidi extends MIDlet {
 
         }
         
-        eventLists = new List(allcategories);
+        incidentsList = new List(allcategories);
+        incidentsList.addActionListener(new ActionListener() {
 
-         eventList.addComponent(eventLists);
+            public void actionPerformed(ActionEvent ae) {
+                System.out.println(ae.getSource());
+            }
+        });
+
+         eventList.addComponent(incidentsList);
          viewForm = new Form("View incidents");
          viewForm.setLayout(new BorderLayout());
          viewForm.setScrollable(false);
@@ -203,13 +210,20 @@ public class Ushahidi extends MIDlet {
 
          tp = new TabbedPane();
 
-        lbmap = (new Label(getMap()));
-        mapcategory=new ComboBox(items);
-        cate.addComponent(mapcategory);
-        mainmenu.addComponent(lbmap);
-        //mainmenu.addComponent(eventLists);
+        mapLabel = new Label(getMap());
+        incidentCategory = new ComboBox(items);
+        incidentCategory.addActionListener(new ActionListener() {
 
-        tp.addTab("Reports Map", mainmenu);
+            public void actionPerformed(ActionEvent ae) {
+                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
+            }
+        });
+
+        cate.addComponent(incidentCategory);
+        mainMenu.addComponent(mapLabel);
+        //mainMenu.addComponent(incidentsList);
+
+        tp.addTab("Reports Map", mainMenu);
         tp.addTab("Reports List", eventList);
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
@@ -258,7 +272,7 @@ public class Ushahidi extends MIDlet {
              lastNameTextField = new TextField();
              emailTextField = new TextField();
         }
-
+        
          instanceComboBox.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
@@ -433,10 +447,10 @@ public class Ushahidi extends MIDlet {
             logoLabel = new Label(imglogo);
             logoLabel.setAlignment(Component.CENTER);
 
-            Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            mainmenu.addComponent(logoLabel);
-            mainmenu.addComponent(new TextArea("Individual detailed incidences will be displayed here.\nYes here!!!"));
-            detailsForm.addComponent(BorderLayout.NORTH, mainmenu);
+            Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+            mainMenu.addComponent(logoLabel);
+            mainMenu.addComponent(new TextArea("Individual detailed incidences will be displayed here.\nYes here!!!"));
+            detailsForm.addComponent(BorderLayout.NORTH, mainMenu);
 
        } catch (IOException ex) {
             System.err.println(ex);
@@ -463,19 +477,19 @@ public class Ushahidi extends MIDlet {
             logoLabel = new Label(imglogo);
             logoLabel.setAlignment(Component.CENTER);
 
-            Container mainmenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+            Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             
         instanceName = new TextField();
         instanceURL = new TextField("http://");
         instanceURL.setCursorPosition(7);
 
-         mainmenu.addComponent(logoLabel);
-         mainmenu.addComponent(new Label("Instance Name"));
-         mainmenu.addComponent(instanceName);
-           mainmenu.addComponent(new Label("Instance Url"));
-         mainmenu.addComponent(instanceURL);
+         mainMenu.addComponent(logoLabel);
+         mainMenu.addComponent(new Label("Instance Name"));
+         mainMenu.addComponent(instanceName);
+           mainMenu.addComponent(new Label("Instance Url"));
+         mainMenu.addComponent(instanceURL);
 
-            instance.addComponent(BorderLayout.NORTH, mainmenu);
+            instance.addComponent(BorderLayout.NORTH, mainMenu);
 
        } catch (IOException ex) {
             System.err.println(ex.getMessage());
@@ -579,6 +593,15 @@ public class Ushahidi extends MIDlet {
 
             // Pre-fetch data that would otherwise take long to load
             prefetchMapData();
+
+            // Fetch google map API key
+            Thread key = new Thread(new Runnable() {
+                public void run() {
+                    ushahidiInstance.getApiKey("google");
+                }
+            });
+            key.start();
+
             
             // Loop if pre-fetching is not complete
             while (isPrefetching()) {
@@ -598,11 +621,12 @@ public class Ushahidi extends MIDlet {
         } else {
             
 
-        if (Dialog.show("Connection error", "There is no active data connection " +
-                    "\n Please check your phone internet settings\n" +
-                    " or \n check your credit account.", "Continue Anyway", "Retry"))
+        if (Dialog.show("Connection error", "Error establishing data connection. "
+            + "\n Please check your phone internet settings\n" +
+            " or \n check your credit account.", "Retry", "Exit"))
             displayMainForm();
-        else showSplashScreen();
+        else 
+            destroyApp(true);
 
         }
     }

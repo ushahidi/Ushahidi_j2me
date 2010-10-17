@@ -195,13 +195,41 @@ public class UshahidiInstance {
         return ( (Integer.parseInt(hour) >= 12) && (Integer.parseInt(hour) <= 23) )? "pm": "am";
     }
 
+    public String getApiKey(String maps) {
+        String ushahidiInstance = getUshahidiInstance();
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=apikeys&by="+maps+"&resp=xml") : ushahidiInstance.concat("/api?task=apikeys&by=google&resp=xml");
+        String key = null;
+
+        try {
+            instanceConnection = (HttpConnection) Connector.open(url);
+            KXmlParser parser = new KXmlParser();
+            parser.setInput(new InputStreamReader(instanceConnection.openInputStream()));
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, null, "response");
+
+            while (parser.next() != XmlPullParser.END_DOCUMENT) {
+                if(parser.getEventType() == XmlPullParser.START_TAG) {
+                    
+                    if (parser.getName().equals("apikey"))
+                        key = parser.nextText();
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        } finally {
+            closeHttpConnection();
+        }
+        
+        return key;
+    }
+
     /**
      * Retries all categories available in an Ushahidi instance
      *
      * @return An XML with the categories in ascending order
      */
     public UshahidiInstance getCategories() {
-        System.out.println("Fetching categories...");
         String ushahidiInstance = getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
         instanceCategories = new Vector();
@@ -302,10 +330,11 @@ public class UshahidiInstance {
         return categories;
     }
 
-    public String getCountries() {
+    public Vector getCountries() {
         String ushahidiInstance = getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=countries&resp=xml") : ushahidiInstance.concat("/api?task=countries&resp=xml");
-        String countries = null;
+        String id = null, iso = null, name = null, capital = null;
+        Vector countryVector = new Vector();
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -317,16 +346,23 @@ public class UshahidiInstance {
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if ("country".equals(parser.getName())) parser.next();
-                        if ("id".equals(parser.getName())) {
-                            if ( countries == null ) countries = parser.nextText() + "|";
-                            else  countries  += parser.nextText() + "|";
-                        } else if("iso".equals(parser.getName()))
-                            countries  += parser.nextText() + "|";
-                        else if("name".equals(parser.getName()))
-                            countries  += parser.nextText() + "|";
-                        else if("capital".equals(parser.getName()))
-                            countries  += parser.nextText() + "~";
+
+                    if ("country".equals(parser.getName()))
+                        parser.next();
+
+                        if ("id".equals(parser.getName()))
+                            id = parser.nextText();
+
+                        if("iso".equals(parser.getName()))
+                            iso  = parser.nextText();
+
+                        if("name".equals(parser.getName()))
+                            name  = parser.nextText();
+
+                        if("capital".equals(parser.getName())) {
+                            capital  = parser.nextText();
+                            countryVector.addElement(new String[] {id, iso, name, capital});
+                        }
                 }
 
             }
@@ -336,7 +372,7 @@ public class UshahidiInstance {
         } finally {
             closeHttpConnection();
         }
-        return countries;
+        return countryVector;
     }
 
     public void getCountryById(int id) {
@@ -513,7 +549,7 @@ public class UshahidiInstance {
 
     public void getIncidents() {
         String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&resp=xml") : ushahidiInstance.concat("/api?task=incidents&resp=xml");
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=all&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=all&resp=xml");
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -525,7 +561,10 @@ public class UshahidiInstance {
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
+
+                    if("id".equals(parser.getName())) 
+                        System.out.println(parser.nextText());
+
                     else if("title".equals(parser.getName())) System.out.println(parser.nextText());
                     else if("description".equals(parser.getName())) System.out.println(parser.nextText());
                     else if("color".equals(parser.getName())) System.out.println(parser.nextText());
@@ -592,9 +631,11 @@ public class UshahidiInstance {
 //        return incidents;
 //    }
 
-    public void getIncidentsByCategoryName(int categoryName) {
+    public void getIncidentsByCategoryName(String categoryName) {
         String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+categoryName+"&resp=xml");
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
+        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
+        Object[] location = null;
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -603,13 +644,61 @@ public class UshahidiInstance {
             parser.setInput(reader);
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
+            Vector incidentsVector = new Vector();
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("title".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("description".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("color".equals(parser.getName())) System.out.println(parser.nextText());
+
+                    if (parser.getName().equals("incident"))
+                        parser.nextTag();
+
+                    if (parser.getName().equals("id"))
+                        id = parser.nextText();
+
+                    if (parser.getName().equals("title"))
+                        title = parser.nextText();
+
+                    if (parser.getName().equals("description"))
+                        description = parser.nextText();
+
+                    if (parser.getName().equals("date"))
+                        parser.nextTag();
+
+                    if (parser.getName().equals("mode"))
+                        id = parser.nextText();
+
+                    if (parser.getName().equals("active"))
+                        title = parser.nextText();
+
+                    if (parser.getName().equals("verified"))
+                        description = parser.nextText();
+
+                    if (parser.getName().equals("location")) {
+                        String locId = null, locName = null, latitude = null, longitude = null;
+                        parser.nextTag();
+
+                        if (parser.getName().equals("id"))
+                            locId = parser.nextText();
+
+                        if (parser.getName().equals("name"))
+                            locName = parser.nextText();
+
+                        if (parser.getName().equals("latitude"))
+                            locName = parser.nextText();
+
+                        if (parser.getName().equals("longitude"))
+                            locName = parser.nextText();
+
+                        location = new Object[] {locId, locName, latitude, longitude };
+                        
+                    }
+
+                    if (parser.getName().equals("categories")) {
+                        date = parser.nextText();
+                        System.out.println(id+", "+title+", "+description+", "+date+", "+mode+", "+active+", "+verified);
+                        incidentsVector.addElement(new Object[] {id, title, description, date, mode, active, verified, location});
+                    }
+
                 }
             }
 
@@ -622,7 +711,7 @@ public class UshahidiInstance {
 
     public void getIncidentsByLocationId(int locationId) {
         String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationId+"&resp=xml");
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -634,10 +723,18 @@ public class UshahidiInstance {
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("title".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("description".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("color".equals(parser.getName())) System.out.println(parser.nextText());
+
+                    if("id".equals(parser.getName())) 
+                        System.out.println(parser.nextText());
+
+                    if("title".equals(parser.getName())) 
+                        System.out.println(parser.nextText());
+
+                    if("description".equals(parser.getName()))
+                        System.out.println(parser.nextText());
+
+                    if("color".equals(parser.getName()))
+                        System.out.println(parser.nextText());
                 }
             }
 
@@ -650,7 +747,7 @@ public class UshahidiInstance {
 
     public void getIncidentsByLocationName(int locationName) {
         String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by="+locationName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationName+"&resp=xml");
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locname&name="+locationName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationName+"&resp=xml");
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -663,9 +760,9 @@ public class UshahidiInstance {
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
                     if("id".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("title".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("description".equals(parser.getName())) System.out.println(parser.nextText());
-                    else if("color".equals(parser.getName())) System.out.println(parser.nextText());
+                    if("title".equals(parser.getName())) System.out.println(parser.nextText());
+                    if("description".equals(parser.getName())) System.out.println(parser.nextText());
+                    if("color".equals(parser.getName())) System.out.println(parser.nextText());
                 }
             }
 
@@ -678,7 +775,7 @@ public class UshahidiInstance {
 
     public void getIncidentsBySinceId(int sinceId) {
         String ushahidiInstance = getUshahidiInstance();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by="+sinceId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+sinceId+"&resp=xml");
+        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml");
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -862,7 +959,7 @@ public class UshahidiInstance {
     }
 
     private void setFetching(boolean fetching) {
-        this.fetching = fetching;
+        UshahidiInstance.fetching = fetching;
     }
 
     private boolean isFetching() { return fetching; }
