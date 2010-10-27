@@ -10,7 +10,6 @@ import com.sun.lwuit.*;
 import com.sun.lwuit.animations.CommonTransitions;
 import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
-import com.sun.lwuit.events.SelectionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.plaf.UIManager;
@@ -160,9 +159,6 @@ public class Ushahidi extends MIDlet {
     //<editor-fold defaultstate="collapsed" desc="View incidents ">
     public void displayViewForm() {
 
-//        if(!isPrefetching())
-//            displayMainForm();
-        
         Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -174,20 +170,11 @@ public class Ushahidi extends MIDlet {
         final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
 //            incidentsList = new List();
 
-        // Check if categories are loaded
-        if (isLoaded())
+        // Update categories List
+        if (getCategoryTitles() != null)
             items = getCategoryTitles();
-        else {
-            do {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            } while (!isLoaded());
-
-        }
-        
+            
+       
         incidentsList = new List(allcategories);
         incidentsList.addActionListener(new ActionListener() {
 
@@ -281,8 +268,8 @@ public class Ushahidi extends MIDlet {
                 settings.saveSettings(instanceComboBox.getSelectedIndex(), reportsTextField.getText(), firstNameTextField.getText(), lastNameTextField.getText(), emailTextField.getText());
 
                 // Prefetch any data that may take long to retrieve
-                if (isConnected())
-                    prefetchMapData();
+//                if (isConnected())
+//                    prefetchMapData();
             }
          });
          
@@ -321,8 +308,8 @@ public class Ushahidi extends MIDlet {
 
                  // Prefetch any data that may take long to retrieve
                  if(Dialog.show("Load map", "Would you like to preload map data now?", "Yes", "No")) {
-                     if (isConnected())
-                        prefetchMapData();
+//                     if (isConnected())
+//                        prefetchMapData();
                  }
              }
          });
@@ -341,20 +328,7 @@ public class Ushahidi extends MIDlet {
 
     //<editor-fold defaultstate="collapsed" desc="Report incident ">
     public void displayReportForm(){
-        // Check if categories are loaded
-        if (isLoaded()) 
-            items = getCategoryTitles();
-        else {            
-            do {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            } while (!isLoaded());
-
-        }
-
+        
         reportForm = new Form("Report incident");
         reportForm.setLayout(new BorderLayout());
         reportForm.setTransitionInAnimator(
@@ -533,28 +507,7 @@ public class Ushahidi extends MIDlet {
         return dateony[0]+" "+dateony[1]+" "+dateony[2]+" "+dateony[3]+" "+dateony[5];
     }
     //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Prefetch Map Data">
-    private void prefetchMapData() {
-        Thread t = new Thread(new Runnable() {
-
-            public void run() {
-                setPrefetching(true);
-                
-                try {
-                    loadMap();
-                } catch (IOException ex) {
-                    System.err.println(ex.getMessage());
-                } finally {
-                    setPrefetching(false);                    
-                }
-            }
-
-        });
-        t.start();
-    }
-    //</editor-fold>
-    
+   
     /**
      *Checks if there is a data connection as it displays the
      * Splash screen. Prefetches other data that may take long
@@ -587,31 +540,18 @@ public class Ushahidi extends MIDlet {
         //Performing a connection test
         if(isConnected()) {
 
+            // Fetch Instance data
+            prefetchInstanceData("google");
 
-            // Thread to fetch Categories in the background
-            loadCategoryTitles();
-
-            // Pre-fetch data that would otherwise take long to load
-            prefetchMapData();
-
-            // Fetch google map API key
-            Thread key = new Thread(new Runnable() {
-                public void run() {
-                    ushahidiInstance.getApiKey("google");
-                }
-            });
-            key.start();
-
-            
-            // Loop if pre-fetching is not complete
-            while (isPrefetching()) {
+            // Waint until the prefetching is complete before proceeding to
+            // the Main Form
+            do {
                 try {
                     Thread.sleep(1500);
-                } catch (InterruptedException ex) {
-                    System.err.println(ex.getMessage());
+                } catch (InterruptedException e) {
+                    System.err.println(e.getMessage());
                 }
-                
-            } 
+            } while(isPrefetching());
             
             // Once there data is prefetching, open the main form
             splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
@@ -663,48 +603,79 @@ public class Ushahidi extends MIDlet {
 }
      //</editor-fold>
 
-    private void loadCategoryTitles() {
-        Thread fetcher = new Thread(new Runnable() {
-
-            public void run() {
-                setLoaded(false);
-                categoryTitles = ushahidiInstance.getCategories().getTitles(1);
-                setLoaded(true);
-            }
-        });
-        fetcher.start();
-    }
-
     private String[] getCategoryTitles() { return categoryTitles; }
 
     /**@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      * @ Methods that hold pre-fetched data come here @
      * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
-    private static void setLoaded(boolean loaded) {
-        Ushahidi.loaded = loaded;
-    }
+    private void prefetchInstanceData(final String mapSource) {
+        setPrefetching(true);
 
-    private boolean isLoaded() { return loaded; }
+        // Pre-fetch data that would otherwise take long to load
+        Thread fetchMap = new Thread(new Runnable() {
+            String mapKey = null;
+
+            public void run() {
+                String mapData = ushahidiInstance.getGeographicMidpoint();
+                String[] mapDetails = split(mapData, "|");
+                double longitude = Double.parseDouble(mapDetails[0].toString());
+                double latitude = Double.parseDouble(mapDetails[1].toString());
+                
+                if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
+                    Gmapclass gMap = new Gmapclass(mapKey);
+
+                    try {
+                        map = gMap.retrieveStaticImage(320, 240, longitude, latitude, 8, "png32");
+                    } catch (IOException ex) {
+                        System.err.println(ex.getMessage());
+                    }
+                } //end if
+            }
+        });
+
+        // Thread to fetch Categories in the background
+        Thread fetchCategories = new Thread(new Runnable() {
+
+            public void run() {
+                categoryTitles = ushahidiInstance.getCategories().getTitles(1);                
+            }
+        });
+
+        // Thread to fetch Incedences in the background
+        Thread fetchIncidents = new Thread(new Runnable() {
+
+            public void run() {
+//                reportedIncidents = ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
+                if (categoryTitles.length != 0)
+                    ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
+            }
+        });
+        
+        // Synchronize Threads
+        fetchMap.start(); // Get Map
+        fetchCategories.start(); // Prefetch category info
+
+        do {
+            try {
+                Thread.sleep(1500);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        } while (fetchMap.isAlive() || fetchCategories.isAlive());
+                
+        setPrefetching(false);
+    }
 
     private static void setPrefetching(boolean prefetching) {
         Ushahidi.prefetching = prefetching;
     }
 
     private boolean isPrefetching() { return prefetching; }
-
-    private void loadMap() throws IOException {
-        String mapData = ushahidiInstance.getGeographicMidpoint();         
-        String[] mapDetails = split(mapData, "|");
-        double longitude = Double.parseDouble(mapDetails[0].toString());
-        double latitude = Double.parseDouble(mapDetails[1].toString());
-        Gmapclass gMap = new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg");
-        this.map = gMap.retrieveStaticImage(320, 240, longitude,latitude, 8, "png32");
-    }
-
+    
     private Image getMap() { return map; }
 
-    private static boolean loaded = false;
+    private static String[] reportedIncidents = null;
     private static boolean prefetching = false;
     private String[] categoryTitles = null;
     private Image map = null;

@@ -43,7 +43,6 @@ public class UshahidiSettings {
                 saveInstance("Demo", "http://demo.ushahidi.com");
             }     else instanceAddress = this.getCurrentInstance();
 
-
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         } finally {
