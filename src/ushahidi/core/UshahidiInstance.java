@@ -26,7 +26,7 @@ public class UshahidiInstance {
      * 
      * @return true if a HTTP_CODE 200 is returned and false otherwise
      */
-    public boolean isConnectionAvailable() {
+    public int isConnectionAvailable() {
         int connectionStatus = 0;
 
         try {
@@ -35,13 +35,14 @@ public class UshahidiInstance {
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
 
+//            System.out.println("Status code:"+connectionStatus);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
             closeHttpConnection();
         } //end finally
 
-        return (connectionStatus == HttpConnection.HTTP_OK)? true: false;
+        return connectionStatus;
     }
 
     /**

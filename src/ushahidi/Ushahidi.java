@@ -496,8 +496,22 @@ public class Ushahidi extends MIDlet {
      */
     //<editor-fold defaultstate="collapsed" desc="Connection test">
     private boolean isConnected() {
+        boolean connected = false;
         settings.setUshahidiDeployment();
-        return ushahidiInstance.isConnectionAvailable();
+        switch(ushahidiInstance.isConnectionAvailable()) {
+            case 200:
+                connected = true;
+                break;
+            case 500:
+                if(Dialog.show("Server error", "An internal server error occured.", "Settings", "Exit"))
+                    displaySettingsForm();
+                else
+                    destroyApp(true);
+                connected = false;
+                break;
+        } //end switch
+
+        return connected;
     }
     //</editor-fold>
 
@@ -558,17 +572,18 @@ public class Ushahidi extends MIDlet {
                     CommonTransitions.SLIDE_VERTICAL, false, 300));
             displayMainForm();
             
-        } else {
-            
-
-        if (Dialog.show("Connection error", "Error establishing data connection. "
-            + "\n Please check your phone internet settings\n" +
-            " or \n check your credit account.", "Retry", "Exit"))
-            displayMainForm();
-        else 
-            destroyApp(true);
-
         }
+//        else {
+//
+//
+//        if (Dialog.show("Connection error", "Error establishing data connection. "
+//            + "\n Please check your phone internet settings\n" +
+//            " or \n check your credit account.", "Retry", "Exit"))
+//            startApp();
+//        else
+//            destroyApp(true);
+//
+//        }
     }
      //</editor-fold>
   
