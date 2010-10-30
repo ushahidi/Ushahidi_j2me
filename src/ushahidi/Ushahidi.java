@@ -42,6 +42,8 @@ public class Ushahidi extends MIDlet {
     private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
+    private String [] allcategories = {"Death in kiambu","Riots in UNOBI",
+    "A Child is mo...","My pen is stolen","Government is..."};
     private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
@@ -164,17 +166,21 @@ public class Ushahidi extends MIDlet {
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         //imglogo = Image.createImage("/ushahidi/res/map.png");
 
-        final String [] allcategories={"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
-        final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
-        final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
-        final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
+//        String [] allcategories = {"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
+//        final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
+//        final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
+//        final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
 //            incidentsList = new List();
 
         // Update categories List
-        if (getCategoryTitles() != null)
+        if (getCategoryTitles() != null) {
             items = getCategoryTitles();
-            
-       
+            getIncidentFilter(items[0]);
+        }
+
+        if (getIncidents().length > 0)
+            allcategories = getIncidents();
+
         incidentsList = new List(allcategories);
         incidentsList.addActionListener(new ActionListener() {
 
@@ -202,7 +208,13 @@ public class Ushahidi extends MIDlet {
         incidentCategory.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
+//                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
+                getIncidentFilter((String) incidentCategory.getSelectedItem());
+
+            if (getIncidents().length > 0)
+                allcategories = getIncidents();
+                incidentsList.repaint();
+                tp.repaint();
             }
         });
 
@@ -617,6 +629,24 @@ public class Ushahidi extends MIDlet {
     return result;
 }
      //</editor-fold>
+
+    private void getIncidentFilter(String categoryName) {
+        Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
+        String[] incidentTitles = new String[incident.size()];
+
+        for (int j = 0; j < incident.size(); j++) {
+            String[] incidentParticulars = (String[]) incident.elementAt(j);
+            incidentTitles[j] = incidentParticulars[1];
+        }
+
+        setIncidents(incidentTitles);
+    }
+
+    private static void setIncidents(String[] incidents) {
+        Ushahidi.reportedIncidents = incidents;
+    }
+
+    private String[] getIncidents() { return reportedIncidents; }
 
     private String[] getCategoryTitles() { return categoryTitles; }
 

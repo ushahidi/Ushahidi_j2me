@@ -632,12 +632,12 @@ public class UshahidiInstance {
 //        return incidents;
 //    }
 
-    public void getIncidentsByCategoryName(String categoryName) {
+    public Vector getIncidentsByCategoryName(String categoryName) {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
-//        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
-//        Object[] location = null;
+        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;        
+        Vector incidentsVector = new Vector();
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -646,71 +646,61 @@ public class UshahidiInstance {
             parser.setInput(reader);
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
-//            Vector incidentsVector = new Vector();
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, null, "payload");
+            parser.nextTag();
+            parser.require(XmlPullParser.START_TAG, null, "incidents");
+            parser.nextTag();
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
                     
                     if (parser.getName().equals("incident"))
                         parser.nextTag();
-//
-                    if (parser.getName().equals("id"))
-                        System.out.println(parser.nextText());
-//                        id = parser.nextText();
-//
-                    if (parser.getName().equals("title"))
-                        System.out.println(parser.nextText());
-//                        title = parser.nextText();
-//
-//                    if (parser.getName().equals("description"))
-//                        description = parser.nextText();
-//
-//                    if (parser.getName().equals("date"))
-//                        parser.nextTag();
-//
-//                    if (parser.getName().equals("mode"))
-//                        id = parser.nextText();
-//
-//                    if (parser.getName().equals("active"))
-//                        title = parser.nextText();
-//
-//                    if (parser.getName().equals("verified"))
-//                        description = parser.nextText();
 
-//                    if (parser.getName().equals("location")) {
-//                        String locId = null, locName = null, latitude = null, longitude = null;
-//                        parser.nextTag();
+                    if (parser.getName().equals("id"))
+                        id = parser.nextText();
+
+                    if (parser.getName().equals("title"))
+                        title = parser.nextText();
+
+                    if (parser.getName().equals("description"))
+                        description = parser.nextText();
+
+                    if (parser.getName().equals("date"))
+                        date = parser.nextText();
+
+                    if (parser.getName().equals("mode"))
+                        mode = parser.nextText();
+
+                    if (parser.getName().equals("active"))
+                        active = parser.nextText();
+
+                    if (parser.getName().equals("verified"))
+                        verified = parser.nextText();
+
+                    // Location info
+                    if (parser.getName().equals("location"))
+                        parser.skipSubTree();
 //
-//                        if (parser.getName().equals("id"))
-//                            locId = parser.nextText();
-//
-//                        if (parser.getName().equals("name"))
-//                            locName = parser.nextText();
-//
-//                        if (parser.getName().equals("latitude"))
-//                            locName = parser.nextText();
-//
-//                        if (parser.getName().equals("longitude"))
-//                            locName = parser.nextText();
-//
-//                        location = new Object[] {locId, locName, latitude, longitude };
-//
-//                    }
-//
-//                    if (parser.getName().equals("categories")) {
-//                        date = parser.nextText();
-//                        System.out.println(id+", "+title+", "+description+", "+date+", "+mode+", "+active+", "+verified);
-//                        incidentsVector.addElement(new Object[] {id, title, description, date, mode, active, verified, location});
-//                    }
+                    if (parser.getName().equals("categories"))
+                        parser.skipSubTree();
+
+                    if (parser.getName().equals("mediaItems")) {
+                        incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
+                    }
 
                 }
             }
+
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
             closeHttpConnection();
         }
+
+        return incidentsVector;
     }
 
     public void getIncidentsByLocationId(int locationId) {
