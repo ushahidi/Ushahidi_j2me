@@ -12,6 +12,7 @@ import com.sun.lwuit.events.ActionEvent;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
+import com.sun.lwuit.list.DefaultListModel;
 import com.sun.lwuit.plaf.UIManager;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
@@ -48,6 +49,7 @@ public class Ushahidi extends MIDlet {
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
+    private DefaultListModel incidentListModel = null;
     
     /**
      * Ushahidi Class constructor<p>
@@ -160,7 +162,7 @@ public class Ushahidi extends MIDlet {
 
     //<editor-fold defaultstate="collapsed" desc="View incidents ">
     public void displayViewForm() {
-
+        
         Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -181,7 +183,8 @@ public class Ushahidi extends MIDlet {
         if (getIncidents().length > 0)
             allcategories = getIncidents();
 
-        incidentsList = new List(allcategories);
+        incidentListModel = new DefaultListModel(allcategories);
+        incidentsList = new List(incidentListModel);
         incidentsList.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
@@ -213,8 +216,12 @@ public class Ushahidi extends MIDlet {
 
             if (getIncidents().length > 0)
                 allcategories = getIncidents();
-                incidentsList.repaint();
-                tp.repaint();
+
+                incidentListModel.removeAll();
+                
+                for ( int i = 0; i < allcategories.length; i++ ) {
+                    incidentListModel.addItem(allcategories[i]);
+                }
             }
         });
 
