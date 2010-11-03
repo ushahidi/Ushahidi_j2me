@@ -1,0 +1,21 @@
+WELCOME
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Ushahidi Java ME client allows a user to post to and view reports from an Ushahidi installtion.
+
+
+System Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- A CDC/CDLC Java enabled cellphone.
+- Adequate RMS storage.
+
+
+Online Resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A list of resources you might need is given below. Feel free to fork the repository, sort issues and/or add missing features.
+
+*About Ushahidi - http://www.ushahidi.com 
+*Application design - http://prezi.com/rwmt6imyacr7/ushahidi-java-me-app/
+*Application Program Interface(API) - http://wiki.ushahidi.com/doku.php?id=ushahidi_api
+*Java ME source - github.com/ushahidi/Ushahidi_j2me
+
+For further references and documentation, head over to our wiki (http://wiki.ushahidi.com/doku.php?id=ushahidi_api). You are encourage to drop by our forums (http://forums.ushahidi.com/) if you have any additional questions or concerns.
