@@ -85,7 +85,7 @@ public class UshahidiInstance {
 
         // Retrieve Geographical co-ordianates i.e. latitude and longitude
         try {
-            geoCoordinates = (new Gmapclass("ABQIAAAAZXlp1O8fOoFyAHV5enf6lRSk9YaxKHaICiCIHJhnWScjgu49rxS6vcg777nVKOFInHBGNMTodct2tg")).geocodeAddress(incident_location);
+            geoCoordinates = (new Gmapclass(ushahidi.Ushahidi.getMapApiKey())).geocodeAddress(incident_location);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }

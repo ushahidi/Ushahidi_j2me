@@ -188,7 +188,8 @@ public class Ushahidi extends MIDlet {
         incidentsList.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-                System.out.println(ae.getSource());
+                System.out.println(incidentListModel.getItemAt(incidentListModel.getSelectedIndex()));
+                String selectedIncident = incidentListModel.getItemAt(incidentListModel.getSelectedIndex()).toString();
             }
         });
 
@@ -657,6 +658,12 @@ public class Ushahidi extends MIDlet {
 
     private String[] getCategoryTitles() { return categoryTitles; }
 
+    private static void setMapApiKey(String mapApiKey) {
+        Ushahidi.mapApiKey = mapApiKey;
+    }
+
+    public static String getMapApiKey() { return mapApiKey; }
+    
     /**@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      * @ Methods that hold pre-fetched data come here @
      * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -675,7 +682,8 @@ public class Ushahidi extends MIDlet {
                 double latitude = Double.parseDouble(mapDetails[1].toString());
                 
                 if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
-                    Gmapclass gMap = new Gmapclass(mapKey);
+                    setMapApiKey(mapKey);
+                    Gmapclass gMap = new Gmapclass(getMapApiKey());
 
                     try {
                         map = gMap.retrieveStaticImage(320, 240, longitude, latitude, 8, "png32");
@@ -729,6 +737,7 @@ public class Ushahidi extends MIDlet {
 
     private static String[] reportedIncidents = null;
     private static boolean prefetching = false;
+    private static String mapApiKey = null;
     private String[] categoryTitles = null;
     private Image map = null;
 }
