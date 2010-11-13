@@ -699,9 +699,31 @@ public class UshahidiInstance {
         } finally {
             closeHttpConnection();
         }
+//        setCategoryIncidents(categoryIncidents);
 
         return incidentsVector;
     }
+
+//    public static void setCategoryIncidents(Vector categoryIncidents) {
+//        UshahidiInstance.categoryIncidents = categoryIncidents;
+//    }
+//
+//    public static Vector getCategoryIncidents() {
+//        return categoryIncidents;
+//    }
+
+//    public String[] getIncidentByTitle(String incidentTitle) {
+//        Vector categoryIncidents = getCategoryIncidents();
+//        String[] targetIncident = null;
+//
+//        for (int i = 0; i < categoryIncidents.size(); i++) {
+//            String[] incident = (String[]) categoryIncidents.elementAt(i);
+//            if (incidentTitle.equals(incident[1]))
+//                targetIncident = incident;
+//        }
+//
+//        return targetIncident;
+//    }
 
     public void getIncidentsByLocationId(int locationId) {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
@@ -895,19 +917,6 @@ public class UshahidiInstance {
         }
     }
 
-//    private String[] trimOutput(Vector vector, int fieldIndex) {
-////        String trimmedOutput = "";
-//        Vector currVector = vector;
-//
-//        for ( int i = 0; i < currVector.size(); i++ ) {
-//            String[] object = (String[]) currVector.elementAt(i);
-//
-////            System.out.println(object[0]);
-//        }
-//
-//        return new String[]{};
-//    }
-
     /**
      * Retrieves version number of Ushahidi engine in use
      *
@@ -958,6 +967,7 @@ public class UshahidiInstance {
 
     private boolean isFetching() { return fetching; }
 
+    private static Vector categoryIncidents = null;
     private static boolean fetching = false;
     private Vector instanceCategories = null;
     private HttpConnection instanceConnection = null;

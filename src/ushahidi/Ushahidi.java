@@ -187,9 +187,10 @@ public class Ushahidi extends MIDlet {
         incidentsList = new List(incidentListModel);
         incidentsList.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent ae) {
-                System.out.println(incidentListModel.getItemAt(incidentListModel.getSelectedIndex()));
+            public void actionPerformed(ActionEvent ae) {                
                 String selectedIncident = incidentListModel.getItemAt(incidentListModel.getSelectedIndex()).toString();
+//                String[] incidentParticulars = ushahidiInstance.getIncidentByTitle(selectedIncident);
+                System.out.println(selectedIncident);
             }
         });
 
@@ -649,6 +650,8 @@ public class Ushahidi extends MIDlet {
 
         setIncidents(incidentTitles);
     }
+
+//    private static void setIncidentsInCategory() {}
 
     private static void setIncidents(String[] incidents) {
         Ushahidi.reportedIncidents = incidents;
