@@ -43,8 +43,7 @@ public class Ushahidi extends MIDlet {
     private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
-    private String [] allcategories = {"Death in kiambu","Riots in UNOBI",
-    "A Child is mo...","My pen is stolen","Government is..."};
+    private String[] allcategories = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
     private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
@@ -180,17 +179,17 @@ public class Ushahidi extends MIDlet {
             getIncidentFilter(items[0]);
         }
 
-        if (getIncidents().length > 0)
-            allcategories = getIncidents();
+        if (getIncidentTitles().length > 0)
+            allcategories = getIncidentTitles();
 
         incidentListModel = new DefaultListModel(allcategories);
         incidentsList = new List(incidentListModel);
         incidentsList.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {                
-                String selectedIncident = incidentListModel.getItemAt(incidentListModel.getSelectedIndex()).toString();
-//                String[] incidentParticulars = ushahidiInstance.getIncidentByTitle(selectedIncident);
-                System.out.println(selectedIncident);
+                int selectedIncidentIndex = incidentListModel.getSelectedIndex();
+                getSelectedIncidentByIndex(selectedIncidentIndex);
+                displayDetails();
             }
         });
 
@@ -216,8 +215,8 @@ public class Ushahidi extends MIDlet {
 //                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
                 getIncidentFilter((String) incidentCategory.getSelectedItem());
 
-            if (getIncidents().length > 0)
-                allcategories = getIncidents();
+            if (getIncidentTitles().length > 0)
+                allcategories = getIncidentTitles();
 
                 incidentListModel.removeAll();
                 
@@ -231,8 +230,8 @@ public class Ushahidi extends MIDlet {
         mainMenu.addComponent(mapLabel);
         //mainMenu.addComponent(incidentsList);
 
-        tp.addTab("Reports Map", mainMenu);
         tp.addTab("Reports List", eventList);
+        tp.addTab("Reports Map", mainMenu);
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
         viewForm.addComponent("Center", tp);
@@ -246,6 +245,8 @@ public class Ushahidi extends MIDlet {
 
         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
+                int selectedIncidentIndex = incidentListModel.getSelectedIndex();
+                getSelectedIncidentByIndex(selectedIncidentIndex);
                 displayDetails();
             }
         });
@@ -444,7 +445,10 @@ public class Ushahidi extends MIDlet {
 
             Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             mainMenu.addComponent(logoLabel);
-            mainMenu.addComponent(new TextArea("Individual detailed incidences will be displayed here.\nYes here!!!"));
+            if (Ushahidi.getIncidentDetails().length > 0) {
+                mainMenu.addComponent(new TextArea(getIncidentDetails()[2]));
+            }
+//            mainMenu.addComponent(new TextArea("Individual detailed incidences will be displayed here.\nYes here!!!"));
             detailsForm.addComponent(BorderLayout.NORTH, mainMenu);
 
        } catch (IOException ex) {
@@ -641,23 +645,37 @@ public class Ushahidi extends MIDlet {
 
     private void getIncidentFilter(String categoryName) {
         Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
+        holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
-        for (int j = 0; j < incident.size(); j++) {
-            String[] incidentParticulars = (String[]) incident.elementAt(j);
-            incidentTitles[j] = incidentParticulars[1];
+        for (int index = 0; index < incident.size(); index++) { // Update index index
+            String[] incidentParticulars = (String[]) incident.elementAt(index);
+            incidentTitles[index] = incidentParticulars[1]; // Title
         }
 
-        setIncidents(incidentTitles);
+        setIncidentTitles(incidentTitles);
     }
 
-//    private static void setIncidentsInCategory() {}
-
-    private static void setIncidents(String[] incidents) {
-        Ushahidi.reportedIncidents = incidents;
+    private void getSelectedIncidentByIndex(int index) {
+        String[] selectedStory =  (String[]) Ushahidi.fetchedIncidents.elementAt(index);
+        setIncidentDetails(selectedStory);
+    }
+    
+    private static void holdFetchedIncidents(Vector fetchedIncidents) {
+        Ushahidi.fetchedIncidents = fetchedIncidents;
     }
 
-    private String[] getIncidents() { return reportedIncidents; }
+    private static void setIncidentDetails(String[] incidentDetails) {
+        Ushahidi.incidentDetails = incidentDetails;
+    }
+
+    private static String[] getIncidentDetails() { return Ushahidi.incidentDetails; }
+
+    private static void setIncidentTitles(String[] incidentTiltles) {
+        Ushahidi.reportedIncidentTitles = incidentTiltles;
+    }
+
+    private String[] getIncidentTitles() { return reportedIncidentTitles; }
 
     private String[] getCategoryTitles() { return categoryTitles; }
 
@@ -709,7 +727,7 @@ public class Ushahidi extends MIDlet {
         Thread fetchIncidents = new Thread(new Runnable() {
 
             public void run() {
-//                reportedIncidents = ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
+//                reportedIncidentTitles = ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
                 if (categoryTitles.length != 0)
                     ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
             }
@@ -738,7 +756,9 @@ public class Ushahidi extends MIDlet {
     
     private Image getMap() { return map; }
 
-    private static String[] reportedIncidents = null;
+    private static Vector fetchedIncidents = null;
+    private static String[] incidentDetails = null;
+    private static String[] reportedIncidentTitles = null;
     private static boolean prefetching = false;
     private static String mapApiKey = null;
     private String[] categoryTitles = null;
