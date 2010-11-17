@@ -34,7 +34,7 @@ import java.util.TimerTask;
 
 public class Ushahidi extends MIDlet {
     private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;
-    private Button btreport,btview,btsettings,takephoto,takegallary;
+    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
@@ -95,9 +95,14 @@ public class Ushahidi extends MIDlet {
 
         try {
             imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
-            btreport = (new Button("Add Incident"));
-            btview = (new Button("View Incidents"));
-            btsettings = (new Button("Change Settings"));
+
+            reportButton = new Button("Add Incident");
+            viewButton = new Button("View Incidents");
+            settingsButton = new Button("Change Settings");
+
+            reportButton.setAlignment(Component.CENTER);
+            viewButton.setAlignment(Component.CENTER);
+            settingsButton.setAlignment(Component.CENTER);
 
          // Forms
         lbseparator=new Label("    ");
@@ -106,21 +111,21 @@ public class Ushahidi extends MIDlet {
 
         //buttons
 
-        btreport.addActionListener(new ActionListener() {
+        reportButton.addActionListener(new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
             displayReportForm();
           }
         });
 
-        btview.addActionListener(new ActionListener() {
+        viewButton.addActionListener(new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
             displayViewForm();
           }
         });
 
-        btsettings.addActionListener(new ActionListener() {
+        settingsButton.addActionListener(new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
             displaySettingsForm();
@@ -135,11 +140,11 @@ public class Ushahidi extends MIDlet {
         mainMenu.addComponent(logoLabel);
         mainMenu.addComponent(lbseparator=new Label("    "));
 
-        mainMenu.addComponent(btreport);
+        mainMenu.addComponent(reportButton);
         mainMenu.addComponent(lbseparator=new Label("    "));
-        mainMenu.addComponent(btview);
+        mainMenu.addComponent(viewButton);
         mainMenu.addComponent(lbseparator=new Label("    "));
-        mainMenu.addComponent(btsettings);
+        mainMenu.addComponent(settingsButton);
         mainForm.addComponent(BorderLayout.CENTER, mainMenu);
 
         } catch (IOException ex) {
@@ -448,9 +453,8 @@ public class Ushahidi extends MIDlet {
             if (Ushahidi.getIncidentDetails().length > 0) {
                 mainMenu.addComponent(new TextArea(getIncidentDetails()[2]));
             }
-//            mainMenu.addComponent(new TextArea("Individual detailed incidences will be displayed here.\nYes here!!!"));
             detailsForm.addComponent(BorderLayout.NORTH, mainMenu);
-
+            
        } catch (IOException ex) {
             System.err.println(ex);
        }
