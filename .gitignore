@@ -1,3 +1,10 @@
 # Compiled sources #
 ####################
 *.class
+build/*
+
+# Operating system generated files #
+####################################
+.directory
+*.*~
+Thumbs.db

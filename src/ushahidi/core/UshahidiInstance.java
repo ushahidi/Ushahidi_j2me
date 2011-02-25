@@ -23,19 +23,17 @@ public class UshahidiInstance {
     /**
      *Tests data connection availability by connecting to the last used
      * Ushahidi instance. Uses http://demo.ushahidi.com for the first time use
-     * 
+     * and current instance for subsequent tests
      * @return true if a HTTP_CODE 200 is returned and false otherwise
      */
     public int isConnectionAvailable() {
         int connectionStatus = 0;
 
-        try {
-            String testURL = UshahidiInstance.getUshahidiInstance();
-            instanceConnection = (HttpConnection) Connector.open(testURL);
+        try {            
+            instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
-
-//            System.out.println("Status code:"+connectionStatus);
+//            System.out.println(connectionStatus);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
@@ -856,6 +854,7 @@ public class UshahidiInstance {
         return Integer.parseInt(incidentCount);
     }
 
+    // Returns null pointer
     public String getGeographicMidpoint() {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=geographicmidpoint&resp=xml") : ushahidiInstance.concat("/api?task=geographicmidpoint&resp=xml");

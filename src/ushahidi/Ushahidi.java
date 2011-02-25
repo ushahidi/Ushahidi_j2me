@@ -260,7 +260,7 @@ public class Ushahidi extends MIDlet {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Application Settings">
-    public void displaySettingsForm(){
+    public void displaySettingsForm() {
          String [] userSetting = settings.getSettings();
          String [] instances = settings.getTitles();
 
@@ -593,26 +593,27 @@ public class Ushahidi extends MIDlet {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     System.err.println(e.getMessage());
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
                 }
             } while(isPrefetching());
             
             // Once there data is prefetching, open the main form
-            splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
+           splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
                     CommonTransitions.SLIDE_VERTICAL, false, 300));
             displayMainForm();
             
         }
-//        else {
-//
-//
-//        if (Dialog.show("Connection error", "Error establishing data connection. "
-//            + "\n Please check your phone internet settings\n" +
-//            " or \n check your credit account.", "Retry", "Exit"))
-//            startApp();
-//        else
-//            destroyApp(true);
-//
-//        }
+        else {
+
+            if (Dialog.show("Connection error", "Error establishing data connection. "
+                + "Please check your phone internet settings\n" +
+                " or \n check your credit account.", "Ignore", "Exit"))
+                displayMainForm();
+            else
+                destroyApp(true);
+
+        } //end-else
     }
      //</editor-fold>
   
@@ -702,20 +703,28 @@ public class Ushahidi extends MIDlet {
 
             public void run() {
                 String mapData = ushahidiInstance.getGeographicMidpoint();
-                String[] mapDetails = split(mapData, "|");
-                double longitude = Double.parseDouble(mapDetails[0].toString());
-                double latitude = Double.parseDouble(mapDetails[1].toString());
-                
-                if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
-                    setMapApiKey(mapKey);
-                    Gmapclass gMap = new Gmapclass(getMapApiKey());
 
-                    try {
-                        map = gMap.retrieveStaticImage(320, 240, longitude, latitude, 8, "png32");
-                    } catch (IOException ex) {
-                        System.err.println(ex.getMessage());
-                    }
-                } //end if
+                // Show an error, if no Geographical mid-point is returned
+                if (mapData == null )
+                    Dialog.show("Map error", "No geographical midpoint was provided", "Ok", "");
+                else {
+                    String[] mapDetails = split(mapData, "|");
+                    double longitude = Double.parseDouble(mapDetails[0].toString());
+                    double latitude = Double.parseDouble(mapDetails[1].toString());
+                                    
+                    if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
+                        setMapApiKey(mapKey);
+                        Gmapclass gMap = new Gmapclass(getMapApiKey());
+
+                        try {
+                            map = gMap.retrieveStaticImage(320, 240, longitude, latitude, 8, "png32");
+                        } catch (IOException ex) {
+                            System.err.println(ex.getMessage());
+                        } catch (Exception e) {
+                            System.err.println(e.getMessage());
+                        }
+                    } //end-if
+                } // end-else
             }
         });
 
