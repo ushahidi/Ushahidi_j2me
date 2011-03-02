@@ -43,6 +43,7 @@ public class Ushahidi extends MIDlet {
     private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
+    private CheckBox securityCheckBox;
     private String[] allcategories = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
     private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
@@ -482,15 +483,25 @@ public class Ushahidi extends MIDlet {
 
             Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             
-        instanceName = new TextField();
-        instanceURL = new TextField("http://");
-        instanceURL.setCursorPosition(7);
+            instanceName = new TextField();
+            instanceURL = new TextField();
+//            instanceURL.setCursorPosition(7);
 
-         mainMenu.addComponent(logoLabel);
-         mainMenu.addComponent(new Label("Instance Name"));
-         mainMenu.addComponent(instanceName);
-           mainMenu.addComponent(new Label("Instance Url"));
-         mainMenu.addComponent(instanceURL);
+            securityCheckBox = new CheckBox("Using secure connections");
+            securityCheckBox.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent ae) {
+                    Dialog.show("Secure connections", "Secure connections not fully supported. Thanks for trying...", "Ok", "");
+                    securityCheckBox.setSelected(false);
+                }
+            });
+            
+            mainMenu.addComponent(logoLabel);
+            mainMenu.addComponent(new Label("Instance Name"));
+            mainMenu.addComponent(instanceName);
+            mainMenu.addComponent(new Label("Instance Url"));
+            mainMenu.addComponent(instanceURL);
+            mainMenu.addComponent(securityCheckBox);
 
             instance.addComponent(BorderLayout.NORTH, mainMenu);
 
@@ -507,10 +518,13 @@ public class Ushahidi extends MIDlet {
         });
          instance.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
-                int id = settings.saveInstance(instanceName.getText(), instanceURL.getText());
+                String protocol = "http://"; //(securityCheckBox.isSelected())? "https://": "http://";
+                int id = settings.saveInstance(instanceName.getText(), protocol.concat(instanceURL.getText()));
+                System.out.println(protocol.concat(instanceURL.getText()));
                 if ( id > 0 ) {
                     instanceName.setText("");
                     instanceURL.setText("");
+                    securityCheckBox.setSelected(false);
                 } //end if
             }
         });
