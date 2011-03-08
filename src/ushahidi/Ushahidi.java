@@ -5,6 +5,9 @@ package ushahidi;
  * and open the template in the editor.
  */
 
+//import com.harrison.lee.twitpic4j.TwitPic;
+//import com.harrison.lee.twitpic4j.TwitPicResponse;
+
 import com.sun.lwuit.*;
 
 import com.sun.lwuit.animations.CommonTransitions;
@@ -14,6 +17,8 @@ import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListModel;
 import com.sun.lwuit.plaf.UIManager;
+import com.jappit.midmaps.googlemaps.GoogleMaps;
+
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import ushahidi.core.UshahidiInstance;
@@ -26,6 +31,9 @@ import java.util.Vector;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.microedition.media.*;
+import javax.microedition.media.control.*;
+
 
 
 /**
@@ -33,7 +41,7 @@ import java.util.TimerTask;
  */
 
 public class Ushahidi extends MIDlet {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance,mapForm;
     private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
@@ -43,14 +51,20 @@ public class Ushahidi extends MIDlet {
     private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
-    private CheckBox securityCheckBox;
     private String[] allcategories = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
     private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
     private DefaultListModel incidentListModel = null;
-    
+    private Form cameraForm;
+    private Player player;
+    private VideoControl vidControl;
+    private MediaComponent mediaComponent;
+    private GoogleMaps gMaps = null;
+        
+//    GoogleStaticMap map = null;
+   
     /**
      * Ushahidi Class constructor<p>
      * Instantiates two objects of the classes UshahidiSettings
@@ -231,13 +245,15 @@ public class Ushahidi extends MIDlet {
                 }
             }
         });
-
+        mapForm = new Form("Map");
         cate.addComponent(incidentCategory);
         mainMenu.addComponent(mapLabel);
         //mainMenu.addComponent(incidentsList);
-
+        //mainMenu.addComponent(mapForm);
+        
         tp.addTab("Reports List", eventList);
         tp.addTab("Reports Map", mainMenu);
+       
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
         viewForm.addComponent("Center", tp);
@@ -261,7 +277,7 @@ public class Ushahidi extends MIDlet {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Application Settings">
-    public void displaySettingsForm() {
+    public void displaySettingsForm(){
          String [] userSetting = settings.getSettings();
          String [] instances = settings.getTitles();
 
@@ -383,6 +399,13 @@ public class Ushahidi extends MIDlet {
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         takephoto = (new Button("Take Photo"));
+        takephoto.addActionListener(new ActionListener() {
+
+          public void actionPerformed(ActionEvent ae) {
+            showCamera();
+              
+          }
+        });
         takegallary = (new Button("From Gallery"));
 
         buttonBar.addComponent(takephoto);
@@ -483,25 +506,15 @@ public class Ushahidi extends MIDlet {
 
             Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
             
-            instanceName = new TextField();
-            instanceURL = new TextField();
-//            instanceURL.setCursorPosition(7);
+        instanceName = new TextField();
+        instanceURL = new TextField("http://");
+        instanceURL.setCursorPosition(7);
 
-            securityCheckBox = new CheckBox("Using secure connections");
-            securityCheckBox.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent ae) {
-                    Dialog.show("Secure connections", "Secure connections not fully supported. Thanks for trying...", "Ok", "");
-                    securityCheckBox.setSelected(false);
-                }
-            });
-            
-            mainMenu.addComponent(logoLabel);
-            mainMenu.addComponent(new Label("Instance Name"));
-            mainMenu.addComponent(instanceName);
-            mainMenu.addComponent(new Label("Instance Url"));
-            mainMenu.addComponent(instanceURL);
-            mainMenu.addComponent(securityCheckBox);
+         mainMenu.addComponent(logoLabel);
+         mainMenu.addComponent(new Label("Instance Name"));
+         mainMenu.addComponent(instanceName);
+           mainMenu.addComponent(new Label("Instance Url"));
+         mainMenu.addComponent(instanceURL);
 
             instance.addComponent(BorderLayout.NORTH, mainMenu);
 
@@ -518,13 +531,10 @@ public class Ushahidi extends MIDlet {
         });
          instance.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
-                String protocol = "http://"; //(securityCheckBox.isSelected())? "https://": "http://";
-                int id = settings.saveInstance(instanceName.getText(), protocol.concat(instanceURL.getText()));
-                System.out.println(protocol.concat(instanceURL.getText()));
+                int id = settings.saveInstance(instanceName.getText(), instanceURL.getText());
                 if ( id > 0 ) {
                     instanceName.setText("");
                     instanceURL.setText("");
-                    securityCheckBox.setSelected(false);
                 } //end if
             }
         });
@@ -607,27 +617,26 @@ public class Ushahidi extends MIDlet {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     System.err.println(e.getMessage());
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
                 }
             } while(isPrefetching());
             
             // Once there data is prefetching, open the main form
-           splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
+            splashForm.setTransitionOutAnimator(CommonTransitions.createSlide(
                     CommonTransitions.SLIDE_VERTICAL, false, 300));
             displayMainForm();
             
         }
-        else {
-
-            if (Dialog.show("Connection error", "Error establishing data connection. "
-                + "Please check your phone internet settings\n" +
-                " or \n check your credit account.", "Ignore", "Exit"))
-                displayMainForm();
-            else
-                destroyApp(true);
-
-        } //end-else
+//        else {
+//
+//
+//        if (Dialog.show("Connection error", "Error establishing data connection. "
+//            + "\n Please check your phone internet settings\n" +
+//            " or \n check your credit account.", "Retry", "Exit"))
+//            startApp();
+//        else
+//            destroyApp(true);
+//
+//        }
     }
      //</editor-fold>
   
@@ -638,6 +647,57 @@ public class Ushahidi extends MIDlet {
      * @param separator
      * @return String[]
      */
+    private void showCamera() {
+        cameraForm = new Form("Capture Image");
+        
+        try {
+            player = Manager.createPlayer("capture://video");
+            player.prefetch();
+            player.realize();
+            mediaComponent = new MediaComponent(player);
+           
+            vidControl = (VideoControl) mediaComponent.getVideoControl();
+            vidControl.setVisible(false);
+           
+            mediaComponent.setFullScreen(true);
+            mediaComponent.start();            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cameraForm.addCommand(new Command("Back") {
+             public void actionPerformed(ActionEvent ev) {
+                    mediaComponent.stop();
+                    displayReportForm();
+
+                }
+        });
+         cameraForm.addCommand(new Command("Capture") {
+            public void actionPerformed(ActionEvent ev) {
+                captureImage();
+            }
+        });
+       
+        cameraForm.addComponent(mediaComponent);
+        cameraForm.show();
+        
+    }
+
+private void captureImage() {
+    try {
+        
+        byte[] raw = vidControl.getSnapshot(null);
+        Image image = Image.createImage(raw, 0, raw.length);
+        mediaComponent.stop();
+        cameraForm.setBgImage(image);
+        
+    }
+    catch (Exception e) {
+//showException(e);
+return;
+
+}
+    }
+
     //<editor-fold defaultstate="collapsed" desc="string splitter">
     public String[] split(String original, String separator) {
     Vector nodes = new Vector();
@@ -717,28 +777,22 @@ public class Ushahidi extends MIDlet {
 
             public void run() {
                 String mapData = ushahidiInstance.getGeographicMidpoint();
+                String[] mapDetails = split(mapData, "|");
+                double longitude = Double.parseDouble(mapDetails[0].toString());
+                double latitude = Double.parseDouble(mapDetails[1].toString());
+                
+                if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
+                    setMapApiKey(mapKey);
+                    Gmapclass gMap = new Gmapclass(getMapApiKey());
 
-                // Show an error, if no Geographical mid-point is returned
-                if (mapData == null )
-                    Dialog.show("Map error", "No geographical midpoint was provided", "Ok", "");
-                else {
-                    String[] mapDetails = split(mapData, "|");
-                    double longitude = Double.parseDouble(mapDetails[0].toString());
-                    double latitude = Double.parseDouble(mapDetails[1].toString());
-                                    
-                    if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
-                        setMapApiKey(mapKey);
-                        Gmapclass gMap = new Gmapclass(getMapApiKey());
-
-                        try {
-                            map = gMap.retrieveStaticImage(320, 240, longitude, latitude, 8, "png32");
-                        } catch (IOException ex) {
-                            System.err.println(ex.getMessage());
-                        } catch (Exception e) {
-                            System.err.println(e.getMessage());
-                        }
-                    } //end-if
-                } // end-else
+                    try {
+                        
+                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32", "true");
+                        
+                    } catch (IOException ex) {
+                        System.err.println(ex.getMessage());
+                    }
+                } //end if
             }
         });
 
@@ -781,7 +835,12 @@ public class Ushahidi extends MIDlet {
 
     private boolean isPrefetching() { return prefetching; }
     
-    private Image getMap() { return map; }
+    private Image getMap() { 
+        return map;        
+    }
+    
+    
+    
 
     private static Vector fetchedIncidents = null;
     private static String[] incidentDetails = null;
