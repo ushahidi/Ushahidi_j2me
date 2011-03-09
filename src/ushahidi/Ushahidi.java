@@ -787,8 +787,9 @@ return;
 
                     try {
                         
-                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32", "true");
-                        
+                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32", "false");
+
+
                     } catch (IOException ex) {
                         System.err.println(ex.getMessage());
                     }
