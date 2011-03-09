@@ -33,7 +33,7 @@ public class UshahidiInstance {
             instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
-//            System.out.println(connectionStatus);
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
@@ -854,8 +854,7 @@ public class UshahidiInstance {
         return Integer.parseInt(incidentCount);
     }
 
-    // Returns null pointer
-    public String getGeographicMidpoint() {
+   public String getGeographicMidpoint() {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=geographicmidpoint&resp=xml") : ushahidiInstance.concat("/api?task=geographicmidpoint&resp=xml");
         String coordinate = null;
@@ -878,13 +877,13 @@ public class UshahidiInstance {
                 }
 
             }
-           
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
             closeHttpConnection();
         }
-        
+
         return coordinate;
     }
 

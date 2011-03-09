@@ -17,6 +17,7 @@ import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListModel;
 import com.sun.lwuit.plaf.UIManager;
+
 import com.jappit.midmaps.googlemaps.GoogleMaps;
 
 import javax.microedition.lcdui.Alert;
@@ -35,13 +36,13 @@ import javax.microedition.media.*;
 import javax.microedition.media.control.*;
 
 
-
 /**
  * @author toshiba
  */
 
+
 public class Ushahidi extends MIDlet {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance,mapForm;
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance; //,mapForm;
     private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
@@ -61,7 +62,7 @@ public class Ushahidi extends MIDlet {
     private Player player;
     private VideoControl vidControl;
     private MediaComponent mediaComponent;
-    private GoogleMaps gMaps = null;
+//    private GoogleMaps gMaps = null;
         
 //    GoogleStaticMap map = null;
    
@@ -245,15 +246,13 @@ public class Ushahidi extends MIDlet {
                 }
             }
         });
-        mapForm = new Form("Map");
+//        mapForm = new Form("Map");
         cate.addComponent(incidentCategory);
         mainMenu.addComponent(mapLabel);
-        //mainMenu.addComponent(incidentsList);
-        //mainMenu.addComponent(mapForm);
         
         tp.addTab("Reports List", eventList);
         tp.addTab("Reports Map", mainMenu);
-       
+        //mainMenu.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
         viewForm.addComponent("Center", tp);
@@ -606,7 +605,7 @@ public class Ushahidi extends MIDlet {
 
         //Performing a connection test
         if(isConnected()) {
-
+            System.out.println("<html><font color=\"red\">Connected</font></html>");
             // Fetch Instance data
             prefetchInstanceData("google");
 
@@ -626,27 +625,19 @@ public class Ushahidi extends MIDlet {
             displayMainForm();
             
         }
-//        else {
-//
-//
-//        if (Dialog.show("Connection error", "Error establishing data connection. "
-//            + "\n Please check your phone internet settings\n" +
-//            " or \n check your credit account.", "Retry", "Exit"))
-//            startApp();
-//        else
-//            destroyApp(true);
-//
-//        }
+        else {
+
+        if (Dialog.show("Connection error", "Error establishing data connection. "
+            + "\n Please check your phone internet settings\n" +
+            " or \n check your credit account.", "Change Instance", "Exit"))
+            displayMainForm();
+        else
+            destroyApp(true);
+
+        }
     }
      //</editor-fold>
   
-    /**
-     * Accepts a String and a separator and returns an array of type String
-     * 
-     * @param string
-     * @param separator
-     * @return String[]
-     */
     private void showCamera() {
         cameraForm = new Form("Capture Image");
         
@@ -693,11 +684,18 @@ private void captureImage() {
     }
     catch (Exception e) {
 //showException(e);
-return;
+    return;
 
-}
     }
+ }
 
+    /**
+     * Accepts a String and a separator and returns an array of type String
+     *
+     * @param string
+     * @param separator
+     * @return String[]
+     */
     //<editor-fold defaultstate="collapsed" desc="string splitter">
     public String[] split(String original, String separator) {
     Vector nodes = new Vector();
@@ -833,12 +831,7 @@ return;
 
     private boolean isPrefetching() { return prefetching; }
     
-    private Image getMap() { 
-        return map;        
-    }
-    
-    
-    
+    private Image getMap() { return map; }
 
     private static Vector fetchedIncidents = null;
     private static String[] incidentDetails = null;
