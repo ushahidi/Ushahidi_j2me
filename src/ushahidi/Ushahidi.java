@@ -785,10 +785,8 @@ return;
                     setMapApiKey(mapKey);
                     Gmapclass gMap = new Gmapclass(getMapApiKey());
 
-                    try {
-                        
-                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32", "true");
-                        
+                    try {                        
+                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32");                        
                     } catch (IOException ex) {
                         System.err.println(ex.getMessage());
                     }
