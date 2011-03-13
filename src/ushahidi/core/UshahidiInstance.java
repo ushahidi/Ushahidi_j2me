@@ -801,7 +801,10 @@ public class UshahidiInstance {
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
+
+                    if("id".equals(parser.getName()))
+                        System.out.println(parser.nextText());
+
                     else if("title".equals(parser.getName())) System.out.println(parser.nextText());
                     else if("description".equals(parser.getName())) System.out.println(parser.nextText());
                     else if("color".equals(parser.getName())) System.out.println(parser.nextText());
