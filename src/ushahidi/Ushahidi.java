@@ -17,6 +17,7 @@ import com.sun.lwuit.layouts.BorderLayout;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListModel;
 import com.sun.lwuit.plaf.UIManager;
+
 import com.jappit.midmaps.googlemaps.GoogleMaps;
 
 import javax.microedition.lcdui.Alert;
@@ -35,14 +36,14 @@ import javax.microedition.media.*;
 import javax.microedition.media.control.*;
 
 
-
 /**
  * @author toshiba
  */
 
+
 public class Ushahidi extends MIDlet {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance,mapForm;
-    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance,videoForm; //,mapForm;
+    private Button reportButton,viewButton,settingsButton,takephoto,takeVideo,takegallery;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
@@ -61,7 +62,7 @@ public class Ushahidi extends MIDlet {
     private Player player;
     private VideoControl vidControl;
     private MediaComponent mediaComponent;
-    private GoogleMaps gMaps = null;
+//    private GoogleMaps gMaps = null;
         
 //    GoogleStaticMap map = null;
    
@@ -245,25 +246,19 @@ public class Ushahidi extends MIDlet {
                 }
             }
         });
-        mapForm = new Form("Map");
+//        mapForm = new Form("Map");
         cate.addComponent(incidentCategory);
         mainMenu.addComponent(mapLabel);
-        //mainMenu.addComponent(incidentsList);
-        //mainMenu.addComponent(mapForm);
         
         tp.addTab("Reports List", eventList);
         tp.addTab("Reports Map", mainMenu);
-       
+        //mainMenu.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
         viewForm.addComponent("Center", tp);
 
         viewForm.show();
-        viewForm.addCommand(new Command("Back") {
-             public void actionPerformed(ActionEvent ev) {
-                    displayMainForm();
-                }
-        });
+        
 
         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
@@ -271,6 +266,12 @@ public class Ushahidi extends MIDlet {
                 getSelectedIncidentByIndex(selectedIncidentIndex);
                 displayDetails();
             }
+        });
+
+        viewForm.addCommand(new Command("Back") {
+             public void actionPerformed(ActionEvent ev) {
+                    displayMainForm();
+                }
         });
 
     }
@@ -352,10 +353,12 @@ public class Ushahidi extends MIDlet {
 
                  // Prefetch any data that may take long to retrieve
                  if(Dialog.show("Load map", "Would you like to preload map data now?", "Yes", "No")) {
-//                     if (isConnected())
-//                        prefetchMapData();
+                     if (isConnected())
+                        //prefetchMapData();
+                         getMap();
                  }
              }
+
          });
 
          settingsForm.addCommand(new Command("Add instance") {
@@ -406,10 +409,19 @@ public class Ushahidi extends MIDlet {
               
           }
         });
-        takegallary = (new Button("From Gallery"));
+        takeVideo = (new Button("Take Video"));
+        takeVideo.addActionListener(new ActionListener() {
+
+          public void actionPerformed(ActionEvent ae) {
+            showVideo();
+
+          }
+        });
+        takegallery = (new Button("From Gallery"));
 
         buttonBar.addComponent(takephoto);
-        buttonBar.addComponent(takegallary);
+        buttonBar.addComponent(takeVideo);
+        buttonBar.addComponent(takegallery);
         textbox.addComponent(logoLabel);
         textbox.addComponent((new Label("Title")));
         textbox.addComponent(txtitle);
@@ -436,13 +448,7 @@ public class Ushahidi extends MIDlet {
             }
         }, 1000, 1000); // delay, iterate
         
-        reportForm.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                timer.cancel();
-                displayMainForm();
-            }
-        });
-
+       
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");
@@ -455,6 +461,13 @@ public class Ushahidi extends MIDlet {
                 txdescri.setText("");
                 txlocation.setText("");
                 category.setSelectedIndex(0);
+            }
+        });
+
+         reportForm.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                timer.cancel();
+                displayMainForm();
             }
         });
 
@@ -606,7 +619,7 @@ public class Ushahidi extends MIDlet {
 
         //Performing a connection test
         if(isConnected()) {
-
+            System.out.println("<html><font color=\"red\">Connected</font></html>");
             // Fetch Instance data
             prefetchInstanceData("google");
 
@@ -626,27 +639,19 @@ public class Ushahidi extends MIDlet {
             displayMainForm();
             
         }
-//        else {
-//
-//
-//        if (Dialog.show("Connection error", "Error establishing data connection. "
-//            + "\n Please check your phone internet settings\n" +
-//            " or \n check your credit account.", "Retry", "Exit"))
-//            startApp();
-//        else
-//            destroyApp(true);
-//
-//        }
+        else {
+
+        if (Dialog.show("Connection error", "Error establishing data connection. "
+            + "\n Please check your phone internet settings\n" +
+            " or \n check your credit account.", "Change Instance", "Exit"))
+            displayMainForm();
+        else
+            destroyApp(true);
+
+        }
     }
      //</editor-fold>
   
-    /**
-     * Accepts a String and a separator and returns an array of type String
-     * 
-     * @param string
-     * @param separator
-     * @return String[]
-     */
     private void showCamera() {
         cameraForm = new Form("Capture Image");
         
@@ -664,6 +669,12 @@ public class Ushahidi extends MIDlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+       
+         cameraForm.addCommand(new Command("Capture") {
+            public void actionPerformed(ActionEvent ev) {
+                captureImage();
+            }
+        });
         cameraForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
                     mediaComponent.stop();
@@ -671,12 +682,6 @@ public class Ushahidi extends MIDlet {
 
                 }
         });
-         cameraForm.addCommand(new Command("Capture") {
-            public void actionPerformed(ActionEvent ev) {
-                captureImage();
-            }
-        });
-       
         cameraForm.addComponent(mediaComponent);
         cameraForm.show();
         
@@ -693,11 +698,21 @@ private void captureImage() {
     }
     catch (Exception e) {
 //showException(e);
-return;
+    return;
 
-}
+    }
+ }
+private void showVideo() {
+       
     }
 
+    /**
+     * Accepts a String and a separator and returns an array of type String
+     *
+     * @param string
+     * @param separator
+     * @return String[]
+     */
     //<editor-fold defaultstate="collapsed" desc="string splitter">
     public String[] split(String original, String separator) {
     Vector nodes = new Vector();
@@ -785,11 +800,8 @@ return;
                     setMapApiKey(mapKey);
                     Gmapclass gMap = new Gmapclass(getMapApiKey());
 
-                    try {
-                        
-                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32", "false");
-
-
+                    try {                        
+                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32");                        
                     } catch (IOException ex) {
                         System.err.println(ex.getMessage());
                     }
@@ -836,12 +848,7 @@ return;
 
     private boolean isPrefetching() { return prefetching; }
     
-    private Image getMap() { 
-        return map;        
-    }
-    
-    
-    
+    private Image getMap() { return map; }
 
     private static Vector fetchedIncidents = null;
     private static String[] incidentDetails = null;

@@ -42,8 +42,8 @@ public class Gmapclass {
     }
 
     public Image retrieveStaticImage(int width, int height, double lat, double lng, int zoom,
-            String format,String sensor) throws IOException {
-        byte[] imageData = loadHttpFile(getMapUrl(width, height, lat, lng, zoom, format, sensor));
+            String format) throws IOException {
+        byte[] imageData = loadHttpFile(getMapUrl(width, height, lng, lat, zoom, format));
 
         return Image.createImage(imageData, 0, imageData.length);
     }
@@ -72,14 +72,13 @@ public class Gmapclass {
     }
 
     private String getGeocodeUrl(String address) {
-        return "http://maps.google.com/maps/api/geo?q=" + urlEncode(address) + "&output=csv&key="
+        return "http://maps.google.com/maps/geo?q=" + urlEncode(address) + "&output=csv&key="
                 + apiKey;
     }
 
-    private String getMapUrl(int width, int height, double lng, double lat, int zoom, String format, String sensor) {
-        return ("http://maps.google.com/maps/api/staticmap?center=" + lat + "," + lng + "&format="
-                + format + "&zoom=" + zoom + "&size=" + width + "x" + height
-                + "&markers=color:red|label:c|" + lat + "," + lng + "&sensor=" + sensor);
+    private String getMapUrl(int width, int height, double lng, double lat, int zoom, String format) {
+        return "http://maps.google.com/staticmap?center=" + lat + "," + lng + "&format="
+                + format + "&zoom=" + zoom + "&size=" + width + "x" + height + "&key=" + apiKey;
     }
 
     private static String urlEncode(String str) {
