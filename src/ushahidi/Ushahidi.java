@@ -42,8 +42,13 @@ import javax.microedition.media.control.*;
 
 
 public class Ushahidi extends MIDlet {
+<<<<<<< HEAD
     private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance; //,mapForm;
     private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
+=======
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance,videoForm; //,mapForm;
+    private Button reportButton,viewButton,settingsButton,takephoto,takeVideo,takegallery;
+>>>>>>> e99ac4601c31dd3a7cd0fbd6956940e4d2070160
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
@@ -258,11 +263,7 @@ public class Ushahidi extends MIDlet {
         viewForm.addComponent("Center", tp);
 
         viewForm.show();
-        viewForm.addCommand(new Command("Back") {
-             public void actionPerformed(ActionEvent ev) {
-                    displayMainForm();
-                }
-        });
+        
 
         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
@@ -270,6 +271,12 @@ public class Ushahidi extends MIDlet {
                 getSelectedIncidentByIndex(selectedIncidentIndex);
                 displayDetails();
             }
+        });
+
+        viewForm.addCommand(new Command("Back") {
+             public void actionPerformed(ActionEvent ev) {
+                    displayMainForm();
+                }
         });
 
     }
@@ -351,10 +358,12 @@ public class Ushahidi extends MIDlet {
 
                  // Prefetch any data that may take long to retrieve
                  if(Dialog.show("Load map", "Would you like to preload map data now?", "Yes", "No")) {
-//                     if (isConnected())
-//                        prefetchMapData();
+                     if (isConnected())
+                        //prefetchMapData();
+                         getMap();
                  }
              }
+
          });
 
          settingsForm.addCommand(new Command("Add instance") {
@@ -405,10 +414,19 @@ public class Ushahidi extends MIDlet {
               
           }
         });
-        takegallary = (new Button("From Gallery"));
+        takeVideo = (new Button("Take Video"));
+        takeVideo.addActionListener(new ActionListener() {
+
+          public void actionPerformed(ActionEvent ae) {
+            showVideo();
+
+          }
+        });
+        takegallery = (new Button("From Gallery"));
 
         buttonBar.addComponent(takephoto);
-        buttonBar.addComponent(takegallary);
+        buttonBar.addComponent(takeVideo);
+        buttonBar.addComponent(takegallery);
         textbox.addComponent(logoLabel);
         textbox.addComponent((new Label("Title")));
         textbox.addComponent(txtitle);
@@ -435,13 +453,7 @@ public class Ushahidi extends MIDlet {
             }
         }, 1000, 1000); // delay, iterate
         
-        reportForm.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                timer.cancel();
-                displayMainForm();
-            }
-        });
-
+       
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");
@@ -454,6 +466,13 @@ public class Ushahidi extends MIDlet {
                 txdescri.setText("");
                 txlocation.setText("");
                 category.setSelectedIndex(0);
+            }
+        });
+
+         reportForm.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                timer.cancel();
+                displayMainForm();
             }
         });
 
@@ -655,6 +674,12 @@ public class Ushahidi extends MIDlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+       
+         cameraForm.addCommand(new Command("Capture") {
+            public void actionPerformed(ActionEvent ev) {
+                captureImage();
+            }
+        });
         cameraForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
                     mediaComponent.stop();
@@ -662,12 +687,6 @@ public class Ushahidi extends MIDlet {
 
                 }
         });
-         cameraForm.addCommand(new Command("Capture") {
-            public void actionPerformed(ActionEvent ev) {
-                captureImage();
-            }
-        });
-       
         cameraForm.addComponent(mediaComponent);
         cameraForm.show();
         
@@ -686,6 +705,13 @@ private void captureImage() {
 //showException(e);
     return;
 
+<<<<<<< HEAD
+=======
+    }
+ }
+private void showVideo() {
+       
+>>>>>>> e99ac4601c31dd3a7cd0fbd6956940e4d2070160
     }
  }
 
