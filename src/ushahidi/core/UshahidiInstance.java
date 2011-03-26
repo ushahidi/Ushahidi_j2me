@@ -18,8 +18,11 @@ import org.xmlpull.v1.XmlPullParser;
  *
  * @author stuart
  */
-public class UshahidiInstance {
+public class UshahidiInstance implements Runnable {
 
+    public void run() {
+    }
+   
     /**
      *Tests data connection availability by connecting to the last used
      * Ushahidi instance. Uses http://demo.ushahidi.com for the first time use

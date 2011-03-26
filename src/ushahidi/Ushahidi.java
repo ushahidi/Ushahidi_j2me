@@ -193,7 +193,7 @@ public class Ushahidi extends MIDlet {
 //        final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
 //        final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
 //            incidentsList = new List();
-
+  
         // Update categories List
         if (getCategoryTitles() != null) {
             items = getCategoryTitles();
@@ -605,7 +605,7 @@ public class Ushahidi extends MIDlet {
 
         //Performing a connection test
         if(isConnected()) {
-            System.out.println("<html><font color=\"red\">Connected</font></html>");
+            System.out.println("Data connection available");
             // Fetch Instance data
             prefetchInstanceData("google");
 
@@ -720,8 +720,22 @@ private void captureImage() {
 }
      //</editor-fold>
 
+    private void getIncidentFilter() {
+        Vector incident = ushahidiInstance.getIncidents();
+        holdFetchedIncidents(incident); // Hold fetched incidents
+        String[] incidentTitles = new String[incident.size()];
+
+        for (int index = 0; index < incident.size(); index++) { // Update index index
+            String[] incidentParticulars = (String[]) incident.elementAt(index);
+            incidentTitles[index] = incidentParticulars[1]; // Title
+        }
+
+        setIncidentTitles(incidentTitles);
+    }
+    
     private void getIncidentFilter(String categoryName) {
         Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
+        System.out.println(incident.size());
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
@@ -804,7 +818,6 @@ private void captureImage() {
         Thread fetchIncidents = new Thread(new Runnable() {
 
             public void run() {
-//                reportedIncidentTitles = ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
                 if (categoryTitles.length != 0)
                     ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
             }
