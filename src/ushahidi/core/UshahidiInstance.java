@@ -231,6 +231,7 @@ public class UshahidiInstance implements Runnable {
      *
      * @return An XML with the categories in ascending order
      */
+    //<editor-fold defaultstate="collapsed" desc="Get Categories">
     public UshahidiInstance getCategories() {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
@@ -283,6 +284,7 @@ public class UshahidiInstance implements Runnable {
 
         return this;
     }
+    //</editor-fold>
 
     public String[] getTitles(int fieldIndex) {
         String[] titles = null;
@@ -673,10 +675,12 @@ public class UshahidiInstance implements Runnable {
 //    }
 
     public Vector getIncidentsByCategoryName(String categoryName) {
+        // To handle xml errors
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
-        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;        
+        System.out.println(url);
+        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
         try {
@@ -686,15 +690,10 @@ public class UshahidiInstance implements Runnable {
             parser.setInput(reader);
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, null, "payload");
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, null, "incidents");
-            parser.nextTag();
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    
+
                     if (parser.getName().equals("incident"))
                         parser.nextTag();
 
@@ -722,11 +721,10 @@ public class UshahidiInstance implements Runnable {
                     // Location info
                     if (parser.getName().equals("location"))
                         parser.skipSubTree();
-//
-                    if (parser.getName().equals("categories"))
-                        parser.skipSubTree();
-
-                    if (parser.getName().equals("mediaItems")) {
+                    
+                     // MediaItems is not present in the XML file and shall thus be removed
+//                    if (parser.getName().equals("mediaItems")) {
+                    if (parser.getName().equals("categories")) {
                         incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
                     }
 

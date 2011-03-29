@@ -233,7 +233,7 @@ public class Ushahidi extends MIDlet {
         incidentCategory.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-//                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
+                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
                 getIncidentFilter((String) incidentCategory.getSelectedItem());
 
             if (getIncidentTitles().length > 0)
@@ -735,7 +735,7 @@ private void captureImage() {
     
     private void getIncidentFilter(String categoryName) {
         Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
-        System.out.println(incident.size());
+        System.out.println("getIncidentFilter(Line 737): "+ incident.size());
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
