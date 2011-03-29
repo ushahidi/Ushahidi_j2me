@@ -233,7 +233,7 @@ public class Ushahidi extends MIDlet {
         incidentCategory.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
+//                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
                 getIncidentFilter((String) incidentCategory.getSelectedItem());
 
             if (getIncidentTitles().length > 0)
@@ -466,21 +466,10 @@ public class Ushahidi extends MIDlet {
         detailsForm = new Form("Incident Details");
         detailsForm.setLayout(new BorderLayout());
 
-        try {
-            imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
-            logoLabel = new Label(imglogo);
-            logoLabel.setAlignment(Component.CENTER);
+        TextArea incidentDetailsTextArea = new TextArea(getIncidentDetails()[2]);
 
-            Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-            mainMenu.addComponent(logoLabel);
-            if (Ushahidi.getIncidentDetails().length > 0) {
-                mainMenu.addComponent(new TextArea(getIncidentDetails()[2]));
-            }
-            detailsForm.addComponent(BorderLayout.NORTH, mainMenu);
-            
-       } catch (IOException ex) {
-            System.err.println(ex);
-       }
+        if (Ushahidi.getIncidentDetails().length > 0)
+            detailsForm.addComponent(BorderLayout.CENTER, incidentDetailsTextArea);
 
         detailsForm.show();
 
@@ -735,7 +724,7 @@ private void captureImage() {
     
     private void getIncidentFilter(String categoryName) {
         Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
-        System.out.println("getIncidentFilter(Line 737): "+ incident.size());
+//        System.out.println("getIncidentFilter(Line 737): "+ incident.size());
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
@@ -815,13 +804,13 @@ private void captureImage() {
         });
 
         // Thread to fetch Incedences in the background
-        Thread fetchIncidents = new Thread(new Runnable() {
-
-            public void run() {
-                if (categoryTitles.length != 0)
-                    ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
-            }
-        });
+//        new Thread(new Runnable() {
+//
+//            public void run() {
+//                if (categoryTitles.length != 0)
+//                    ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
+//            }
+//        }).start();
         
         // Synchronize Threads
         fetchMap.start(); // Get Map

@@ -564,11 +564,6 @@ public class UshahidiInstance implements Runnable {
             parser.setInput(reader);
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, null, "payload");
-            parser.nextTag();
-            parser.require(XmlPullParser.START_TAG, null, "incidents");
-            parser.nextTag();
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
@@ -600,11 +595,10 @@ public class UshahidiInstance implements Runnable {
                     // Location info
                     if (parser.getName().equals("location"))
                         parser.skipSubTree();
-//
-                    if (parser.getName().equals("categories"))
-                        parser.skipSubTree();
 
-                    if (parser.getName().equals("mediaItems")) {
+                     // MediaItems is not present in the XML file and shall thus be removed
+//                    if (parser.getName().equals("mediaItems")) {
+                    if (parser.getName().equals("categories")) {
                         incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
                     }
 
@@ -679,7 +673,6 @@ public class UshahidiInstance implements Runnable {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
-        System.out.println(url);
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
@@ -766,7 +759,9 @@ public class UshahidiInstance implements Runnable {
     public void getIncidentsByLocationId(int locationId) {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
-
+        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
+        Vector incidentsVector = new Vector();;
+        
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
             Reader reader = new InputStreamReader(instanceConnection.openInputStream());
@@ -778,19 +773,43 @@ public class UshahidiInstance implements Runnable {
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
 
-                    if("id".equals(parser.getName())) 
-                        System.out.println(parser.nextText());
+                    if (parser.getName().equals("incident"))
+                        parser.nextTag();
 
-                    if("title".equals(parser.getName())) 
-                        System.out.println(parser.nextText());
+                    if (parser.getName().equals("id"))
+                        id = parser.nextText();
 
-                    if("description".equals(parser.getName()))
-                        System.out.println(parser.nextText());
+                    if (parser.getName().equals("title"))
+                        title = parser.nextText();
 
-                    if("color".equals(parser.getName()))
-                        System.out.println(parser.nextText());
+                    if (parser.getName().equals("description"))
+                        description = parser.nextText();
+
+                    if (parser.getName().equals("date"))
+                        date = parser.nextText();
+
+                    if (parser.getName().equals("mode"))
+                        mode = parser.nextText();
+
+                    if (parser.getName().equals("active"))
+                        active = parser.nextText();
+
+                    if (parser.getName().equals("verified"))
+                        verified = parser.nextText();
+
+                    // Location info
+                    if (parser.getName().equals("location"))
+                        parser.skipSubTree();
+
+                     // MediaItems is not present in the XML file and shall thus be removed
+//                    if (parser.getName().equals("mediaItems")) {
+                    if (parser.getName().equals("categories")) {
+                        incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
+                    }
+
                 }
             }
+
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -802,6 +821,8 @@ public class UshahidiInstance implements Runnable {
     public void getIncidentsByLocationName(int locationName) {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locname&name="+locationName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationName+"&resp=xml");
+        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
+        Vector incidentsVector = new Vector();;
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -813,12 +834,44 @@ public class UshahidiInstance implements Runnable {
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if(parser.getEventType() == XmlPullParser.START_TAG) {
-                    if("id".equals(parser.getName())) System.out.println(parser.nextText());
-                    if("title".equals(parser.getName())) System.out.println(parser.nextText());
-                    if("description".equals(parser.getName())) System.out.println(parser.nextText());
-                    if("color".equals(parser.getName())) System.out.println(parser.nextText());
+
+                    if (parser.getName().equals("incident"))
+                        parser.nextTag();
+
+                    if (parser.getName().equals("id"))
+                        id = parser.nextText();
+
+                    if (parser.getName().equals("title"))
+                        title = parser.nextText();
+
+                    if (parser.getName().equals("description"))
+                        description = parser.nextText();
+
+                    if (parser.getName().equals("date"))
+                        date = parser.nextText();
+
+                    if (parser.getName().equals("mode"))
+                        mode = parser.nextText();
+
+                    if (parser.getName().equals("active"))
+                        active = parser.nextText();
+
+                    if (parser.getName().equals("verified"))
+                        verified = parser.nextText();
+
+                    // Location info
+                    if (parser.getName().equals("location"))
+                        parser.skipSubTree();
+
+                     // MediaItems is not present in the XML file and shall thus be removed
+//                    if (parser.getName().equals("mediaItems")) {
+                    if (parser.getName().equals("categories")) {
+                        incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
+                    }
+
                 }
             }
+
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
