@@ -594,7 +594,6 @@ public class Ushahidi extends MIDlet {
 
         //Performing a connection test
         if(isConnected()) {
-            System.out.println("Data connection available");
             // Fetch Instance data
             prefetchInstanceData("google");
 
