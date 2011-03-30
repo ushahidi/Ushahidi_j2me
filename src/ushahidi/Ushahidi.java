@@ -769,19 +769,22 @@ private void captureImage() {
      * @ Methods that hold pre-fetched data come here @
      * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
-    private void prefetchInstanceData(final String mapSource) {
+    private void prefetchInstanceData(final String mapSource) throws NullPointerException {
         setPrefetching(true);
 
         // Pre-fetch data that would otherwise take long to load
         Thread fetchMap = new Thread(new Runnable() {
             String mapKey = null;
 
+            // Handle null exception that occurs when Geographical midpoint
+            // is attempted to be retrieved
             public void run() {
                 String mapData = ushahidiInstance.getGeographicMidpoint();
                 String[] mapDetails = split(mapData, "|");
                 double longitude = Double.parseDouble(mapDetails[0].toString());
                 double latitude = Double.parseDouble(mapDetails[1].toString());
-                
+
+
                 if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
                     setMapApiKey(mapKey);
                     Gmapclass gMap = new Gmapclass(getMapApiKey());
