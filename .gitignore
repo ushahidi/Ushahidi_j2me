@@ -1,8 +1,6 @@
 # Compiled sources #
 ####################
-*.class
 build
-dist
 
 # Operating system generated files #
 ####################################
