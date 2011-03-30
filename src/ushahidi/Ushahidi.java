@@ -615,10 +615,9 @@ public class Ushahidi extends MIDlet {
         }
         else {
 
-        if (Dialog.show("Connection error", "Error establishing data connection. "
-            + "\n Please check your phone internet settings\n" +
-            " or \n check your credit account.", "Change Instance", "Exit"))
-            displayMainForm();
+        if (Dialog.show("CONNECTION ERROR!", "There was an error establishing data connection."
+            + "\nPlease check your phone internet settings or your credit balance." , "Change Instance" , "Exit"))
+            displaySettingsForm();
         else
             destroyApp(true);
 
