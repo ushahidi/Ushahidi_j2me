@@ -1,5 +1,5 @@
 MIDlet-1: Ushahidi,/ushahidi/res/icon.png,ushahidi.Ushahidi
-MIDlet-Jar-Size: 284399
+MIDlet-Jar-Size: 324061
 MIDlet-Jar-URL: https://github.com/ushahidi/Ushahidi_j2me/blob/master/dist/UshahidiJ2ME.jar?raw=true
 MIDlet-Name: Ushahidi
 MIDlet-Vendor: Vendor

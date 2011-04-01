@@ -350,10 +350,11 @@ public class Ushahidi extends MIDlet {
                  settings.saveSettings(instanceComboBox.getSelectedIndex(), reportsTextField.getText(), firstNameTextField.getText(), lastNameTextField.getText(), emailTextField.getText());
 
                  // Prefetch any data that may take long to retrieve
-                 if(Dialog.show("Load map", "Would you like to preload map data now?", "Yes", "No")) {
-//                     if (isConnected())
-//                        prefetchMapData();
-                 }
+                 if(Dialog.show("Restart", "A restart is needed to load selected"
+                         + " instance. Should the application exit now?", "Yes", "No"))
+                     destroyApp(true);
+                 else
+                     displayMainForm();
              }
          });
 
@@ -615,7 +616,7 @@ public class Ushahidi extends MIDlet {
         }
         else {
 
-        if (Dialog.show("CONNECTION ERROR!", "There was an error establishing data connection."
+        if (Dialog.show("Connection error", "There was an error establishing data connection."
             + "\nPlease check your phone internet settings or your credit balance." , "Change Instance" , "Exit"))
             displaySettingsForm();
         else
