@@ -351,7 +351,7 @@ public class Ushahidi extends MIDlet {
 
                  // Prefetch any data that may take long to retrieve
                  if(Dialog.show("Restart", "A restart is needed to load selected"
-                         + " instance. Should the application exit now?", "Yes", "No"))
+                         + " instance. Would you wish to exit the application now?", "Yes", "No"))
                      destroyApp(true);
                  else
                      displayMainForm();
