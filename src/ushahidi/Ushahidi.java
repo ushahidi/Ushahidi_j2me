@@ -360,7 +360,7 @@ public class Ushahidi extends MIDlet {
 
          settingsForm.addCommand(new Command("Add instance") {
              public void actionPerformed(ActionEvent ev) {
-                addInstance();
+                addUshahidiInstance();
              }
          });
 
@@ -485,7 +485,7 @@ public class Ushahidi extends MIDlet {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Create an instance">
-    public void addInstance() {
+    public void addUshahidiInstance() {
         instance = new Form("Add an Instance");
         instance.setLayout(new BorderLayout());
 

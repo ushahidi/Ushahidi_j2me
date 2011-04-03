@@ -39,8 +39,9 @@ public class UshahidiSettings {
         try {
             rs = getRecordStore("CurrentInstance");
             if (rs.getNumRecords() == 0) {
-                instanceAddress = "http://demo.ushahidi.com";
-                saveInstance("Demo", "http://demo.ushahidi.com");
+//                instanceAddress = "http://demo.ushahidi.com";
+//                saveInstance("Demo", "http://demo.ushahidi.com");
+                (new ushahidi.Ushahidi()).addUshahidiInstance();
             }     else instanceAddress = this.getCurrentInstance();
 
         } catch (Exception ex) {
