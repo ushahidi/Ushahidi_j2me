@@ -112,8 +112,8 @@ public class Ushahidi extends MIDlet {
         try {
             imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
 
-            reportButton = new Button("Add Incident");
-            viewButton = new Button("View Incidents");
+            reportButton = new Button("Add Report");
+            viewButton = new Button("View Reports");
             settingsButton = new Button("Change Settings");
 
             reportButton.setAlignment(Component.CENTER);
@@ -445,12 +445,13 @@ public class Ushahidi extends MIDlet {
 
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
-                String [] dateField = split(txdate.getText(), " ");
+                String [] dateField = split(txdate.getText(), " ");                
                 boolean saved = ushahidiInstance.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), category.getSelectedItem().toString());
-                if (saved)                    
+                System.out.println("Application saved? "+saved);
+                if (saved)
                     Dialog.show("Succesful", "Your report was succesfully submitted", Dialog.TYPE_CONFIRMATION, null, "Ok", "Cancel");
                 else
-                    Dialog.show("Failure", "Your report wasn't succesfully submitted", "Ok", "Cancel");
+                    Dialog.show("Failure", "An error occured while submitting your report.", "Ok", "Cancel");
                 txtitle.setText("");
                 txdescri.setText("");
                 txlocation.setText("");
@@ -617,7 +618,7 @@ public class Ushahidi extends MIDlet {
         else {
 
         if (Dialog.show("Connection error", "There was an error establishing data connection."
-            + "\nPlease check your phone internet settings or your credit balance." , "Change Instance" , "Exit"))
+            + "\nPlease check your phone internet settings or your credit balance." , "Settings" , "Exit"))
             displaySettingsForm();
         else
             destroyApp(true);

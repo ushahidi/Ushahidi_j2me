@@ -83,14 +83,13 @@ public class UshahidiInstance implements Runnable {
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api") : ushahidiInstance.concat("/api");
         String [] setting = (new UshahidiSettings()).getSettings();        
         String data = "";
-
+        
         // Retrieve Geographical co-ordianates i.e. latitude and longitude
         try {
             geoCoordinates = (new Gmapclass(ushahidi.Ushahidi.getMapApiKey())).geocodeAddress(incident_location);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
-
 
         // Prepare the data to be sent to the server
         String[] params = {
@@ -119,13 +118,17 @@ public class UshahidiInstance implements Runnable {
         // Replace any white spaces with the '+' character
         data = data.replace(' ', '+');
 
+        // Remove white spaces
+        data = data.trim();
+        System.out.println("Data: "+data);
+
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
+            instanceConnection.setRequestMethod(HttpConnection.POST);
             instanceConnection.setRequestProperty("User-Agent", "Profile/MIDP-2.0 Configuration/CLDC-1.1");
             instanceConnection.setRequestProperty("Connection", "keep-alive");
             instanceConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // multipart/form-data
             instanceConnection.setRequestProperty("Content-Length", data.getBytes().length+"");
-            instanceConnection.setRequestMethod(HttpConnection.POST);
             dataOutputStream = instanceConnection.openDataOutputStream();
             byte[] byteData = data.getBytes();
 
@@ -133,7 +136,7 @@ public class UshahidiInstance implements Runnable {
             for ( int i = 0; i < byteData.length ; i++ ) {
                 dataOutputStream.write(byteData[i]);
             }
-
+            
             // process server response
             Reader reader = null;
             try {
@@ -174,7 +177,10 @@ public class UshahidiInstance implements Runnable {
             if (rawDate[1].equals(monthsOfYear[i])) monthNumber = i + 1;
         } // end for
 
-        return String.valueOf(monthNumber).concat("/").concat(rawDate[2]).concat("/").concat(rawDate[4]);
+        // Zero-pad the month if less than the 10th month
+        String currentMonth = ((monthNumber < 10)? "0".concat(String.valueOf(monthNumber)): String.valueOf(monthNumber));
+
+        return currentMonth.concat("/").concat(rawDate[2]).concat("/").concat(rawDate[4]);
     }
 
     private String getHour(String time) {
