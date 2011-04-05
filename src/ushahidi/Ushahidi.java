@@ -672,7 +672,7 @@ private void captureImage() {
         
     }
     catch (Exception e) {
-//showException(e);
+        System.err.println(e.getMessage());
     return;
 
     }
