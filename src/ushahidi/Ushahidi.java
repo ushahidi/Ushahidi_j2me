@@ -18,7 +18,6 @@ import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListModel;
 import com.sun.lwuit.plaf.UIManager;
 
-import com.jappit.midmaps.googlemaps.GoogleMaps;
 
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
@@ -41,7 +40,7 @@ import javax.microedition.media.control.*;
  */
 
 
-public class Ushahidi extends MIDlet {
+public class Ushahidi extends MIDlet  {
     private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance; //,mapForm;
     private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
@@ -107,9 +106,10 @@ public class Ushahidi extends MIDlet {
     //<editor-fold defaultstate="collapsed" desc=" Main form ">
     public void displayMainForm(){
         mainForm = new Form("Ushahidi");
-        mainForm.setLayout(new BorderLayout());
+        
 
         try {
+            mainForm.setLayout(new BorderLayout());
             imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
 
             reportButton = new Button("Add Report");
@@ -165,6 +165,7 @@ public class Ushahidi extends MIDlet {
 
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
+           
         }
 
         Command exitCommand = new Command("Exit");
@@ -431,8 +432,12 @@ public class Ushahidi extends MIDlet {
         timer.scheduleAtFixedRate(new TimerTask() {
 
             public void run() {
+                try{
                 txdate.setText(getDate().trim());
                 txdate.repaint();
+                }catch(Exception ex){
+                    System.err.println(ex.getMessage());
+                }
             }
         }, 1000, 1000); // delay, iterate
         
@@ -546,11 +551,13 @@ public class Ushahidi extends MIDlet {
                 connected = true;
                 break;
             case 500:
-                if(Dialog.show("Server error", "An internal server error occured.", "Settings", "Exit"))
+                if(Dialog.show("Server error", "An internal server error occured.", "Settings", "Exit")){
                     displaySettingsForm();
-                else
+                }
+                else{
                     destroyApp(true);
                 connected = false;
+                }
                 break;
         } //end switch
 
@@ -590,6 +597,7 @@ public class Ushahidi extends MIDlet {
             splashForm.getStyle().setBgImage(Image.createImage("/ushahidi/res/splash.jpg"));
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
+            
         }
 
         splashForm.show();
@@ -604,8 +612,9 @@ public class Ushahidi extends MIDlet {
             do {
                 try {
                     Thread.sleep(1500);
-                } catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
+                } catch (InterruptedException ex) {
+                    System.err.println(ex.getMessage());
+                    
                 }
             } while(isPrefetching());
             
@@ -642,7 +651,7 @@ public class Ushahidi extends MIDlet {
             mediaComponent.setFullScreen(true);
             mediaComponent.start();            
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         cameraForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
@@ -772,6 +781,7 @@ private void captureImage() {
     private void prefetchInstanceData(final String mapSource) throws NullPointerException {
         setPrefetching(true);
 
+        
         // Pre-fetch data that would otherwise take long to load
         Thread fetchMap = new Thread(new Runnable() {
             String mapKey = null;
@@ -802,7 +812,11 @@ private void captureImage() {
         Thread fetchCategories = new Thread(new Runnable() {
 
             public void run() {
-                categoryTitles = ushahidiInstance.getCategories().getTitles(1);                
+                try{
+                categoryTitles = ushahidiInstance.getCategories().getTitles(1);
+                }catch(Exception ex){
+                 System.err.println(ex.getMessage());
+                }
             }
         });
 
