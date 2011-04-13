@@ -1,8 +1,8 @@
 MIDlet-1: Ushahidi,/ushahidi/res/icon.png,ushahidi.Ushahidi
-MIDlet-Jar-Size: 324639
+MIDlet-Jar-Size: 324558
 MIDlet-Jar-URL: UshahidiJ2ME.jar
 MIDlet-Name: Ushahidi
 MIDlet-Vendor: Vendor
 MIDlet-Version: 1.0
 MicroEdition-Configuration: CLDC-1.1
-MicroEdition-Profile: MIDP-2.1
+MicroEdition-Profile: MIDP-2.0

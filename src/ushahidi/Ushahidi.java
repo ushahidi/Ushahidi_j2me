@@ -177,6 +177,7 @@ public class Ushahidi extends MIDlet  {
             }
        });
 
+
         mainForm.show();
     }
      //</editor-fold>
@@ -229,7 +230,7 @@ public class Ushahidi extends MIDlet  {
 
          tp = new TabbedPane();
 
-        mapLabel = new Label(getMap());
+       // mapLabel = new Label(getMap());
         incidentCategory = new ComboBox(items);
         incidentCategory.addActionListener(new ActionListener() {
 
@@ -252,26 +253,28 @@ public class Ushahidi extends MIDlet  {
         mainMenu.addComponent(mapLabel);
         
         tp.addTab("Reports List", eventList);
-        tp.addTab("Reports Map", mainMenu);
+        //tp.addTab("Reports Map", mainMenu);
         //mainMenu.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
         viewForm.addComponent("Center", tp);
 
         viewForm.show();
-        viewForm.addCommand(new Command("Back") {
-             public void actionPerformed(ActionEvent ev) {
-                    displayMainForm();
-                }
-        });
-
-        viewForm.addCommand(new Command("View") {
+         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
                 int selectedIncidentIndex = incidentListModel.getSelectedIndex();
                 getSelectedIncidentByIndex(selectedIncidentIndex);
                 displayDetails();
             }
         });
+        
+        viewForm.addCommand(new Command("Back") {
+             public void actionPerformed(ActionEvent ev) {
+                    displayMainForm();
+                }
+        });
+
+       
 
     }
     //</editor-fold>
@@ -409,8 +412,8 @@ public class Ushahidi extends MIDlet  {
         });
         takegallary = (new Button("From Gallery"));
 
-        buttonBar.addComponent(takephoto);
-        buttonBar.addComponent(takegallary);
+        //buttonBar.addComponent(takephoto);
+        //buttonBar.addComponent(takegallary);
         textbox.addComponent(logoLabel);
         textbox.addComponent((new Label("Title")));
         textbox.addComponent(txtitle);
@@ -441,13 +444,7 @@ public class Ushahidi extends MIDlet  {
             }
         }, 1000, 1000); // delay, iterate
         
-        reportForm.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                timer.cancel();
-                displayMainForm();
-            }
-        });
-
+       
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");                
@@ -463,6 +460,14 @@ public class Ushahidi extends MIDlet  {
                 category.setSelectedIndex(0);
             }
         });
+
+         reportForm.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                timer.cancel();
+                displayMainForm();
+            }
+        });
+
 
     }
     //</editor-fold>
@@ -519,11 +524,6 @@ public class Ushahidi extends MIDlet  {
 
         instance.show();
 
-        instance.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                displaySettingsForm();
-            }
-        });
          instance.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 int id = settings.saveInstance(instanceName.getText(), instanceURL.getText());
@@ -531,6 +531,11 @@ public class Ushahidi extends MIDlet  {
                     instanceName.setText("");
                     instanceURL.setText("");
                 } //end if
+            }
+        });
+        instance.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                displaySettingsForm();
             }
         });
 
