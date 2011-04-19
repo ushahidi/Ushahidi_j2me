@@ -618,7 +618,7 @@ public class Ushahidi extends MIDlet  {
             // the Main Form
             do {
                 try {
-                    Thread.sleep(1500);
+                    Thread.sleep(3500);
                 } catch (InterruptedException ex) {
                     System.err.println(ex.getMessage());
                     
