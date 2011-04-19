@@ -32,11 +32,14 @@ public class UshahidiInstance implements Runnable {
     public int isConnectionAvailable() {
         int connectionStatus = 0;
 
-        try {            
+        try {
+            int i=0;
+            while(i<4){
             instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
-
+            i++;
+            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {

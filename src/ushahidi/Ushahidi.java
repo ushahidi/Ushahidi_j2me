@@ -5,9 +5,10 @@ package ushahidi;
  * and open the template in the editor.
  */
 
+
 //import com.harrison.lee.twitpic4j.TwitPic;
 //import com.harrison.lee.twitpic4j.TwitPicResponse;
-
+//import com.harrison.lee.twitpic4j.exception.TwitPicException;
 import com.sun.lwuit.*;
 
 import com.sun.lwuit.animations.CommonTransitions;
@@ -24,6 +25,8 @@ import javax.microedition.lcdui.AlertType;
 import ushahidi.core.UshahidiInstance;
 import ushahidi.core.UshahidiSettings;
 import com.sun.lwuit.util.Resources;
+import com.sun.midp.io.j2me.storage.File;
+import com.sun.midp.io.j2me.storage.File;
 import javax.microedition.midlet.*;
 import ushahidi.core.Gmapclass;
 import java.io.IOException;
@@ -33,7 +36,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.media.*;
 import javax.microedition.media.control.*;
-
 
 /**
  * @author toshiba
@@ -661,8 +663,7 @@ public class Ushahidi extends MIDlet  {
         cameraForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
                     mediaComponent.stop();
-                    displayReportForm();
-
+                    
                 }
         });
          cameraForm.addCommand(new Command("Capture") {
@@ -683,9 +684,28 @@ private void captureImage() {
         Image image = Image.createImage(raw, 0, raw.length);
         mediaComponent.stop();
         cameraForm.setBgImage(image);
-        
-    }
-    catch (Exception e) {
+
+       
+        // Create TwitPic object and allocate TwitPicResponse object
+//        TwitPic tpRequest = new TwitPic("ushahidij2me", "ushahidilwuit");
+//        TwitPicResponse tpResponse = null;
+//
+//        // Make request and handle exceptions
+//        try {
+//            tpResponse = tpRequest.uploadAndPost(raw, "Incident Photo");
+//        } catch (IOException e) {
+//            //e.printStackTrace();
+//            System.err.println("error");
+//        } catch (TwitPicException e) {
+//          // e.printStackTrace();
+//           System.err.println("error");
+//        }
+//
+//        // If we got a response back, print out response variables
+//        if(tpResponse != null)
+//            tpResponse.dumpVars();
+
+    }catch (Exception e) {
         System.err.println(e.getMessage());
     return;
 
