@@ -34,7 +34,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             int i=0;
-            while(i<4){
+            while(i<10){
             instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
