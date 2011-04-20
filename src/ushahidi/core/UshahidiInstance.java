@@ -33,8 +33,7 @@ public class UshahidiInstance implements Runnable {
         int connectionStatus = 0;
 
         try {
-            int i=0;
-            
+           
             instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();

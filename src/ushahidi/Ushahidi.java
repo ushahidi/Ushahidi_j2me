@@ -43,8 +43,7 @@ import javax.microedition.media.control.*;
 
 
 public class Ushahidi extends MIDlet  {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance; //,mapForm;
-    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
@@ -190,13 +189,7 @@ public class Ushahidi extends MIDlet  {
         Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        //imglogo = Image.createImage("/ushahidi/res/map.png");
-
-//        String [] allcategories = {"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
-//        final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
-//        final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
-//        final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
-//            incidentsList = new List();
+        
   
         // Update categories List
         if (getCategoryTitles() != null) {
