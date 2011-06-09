@@ -90,7 +90,7 @@ public class Gmapclass {
             dos.writeUTF(str);
             bytes = bos.toByteArray();
         } catch (IOException e) {
-            // ignore
+            System.err.println(e.getMessage());
         }
         for (int i = 2; i < bytes.length; i++) {
             byte b = bytes[i];

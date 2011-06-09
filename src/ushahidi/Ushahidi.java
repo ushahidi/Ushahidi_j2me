@@ -5,9 +5,10 @@ package ushahidi;
  * and open the template in the editor.
  */
 
+
 //import com.harrison.lee.twitpic4j.TwitPic;
 //import com.harrison.lee.twitpic4j.TwitPicResponse;
-
+//import com.harrison.lee.twitpic4j.exception.TwitPicException;
 import com.sun.lwuit.*;
 
 import com.sun.lwuit.animations.CommonTransitions;
@@ -18,13 +19,14 @@ import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListModel;
 import com.sun.lwuit.plaf.UIManager;
 
-import com.jappit.midmaps.googlemaps.GoogleMaps;
 
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import ushahidi.core.UshahidiInstance;
 import ushahidi.core.UshahidiSettings;
 import com.sun.lwuit.util.Resources;
+import com.sun.midp.io.j2me.storage.File;
+import com.sun.midp.io.j2me.storage.File;
 import javax.microedition.midlet.*;
 import ushahidi.core.Gmapclass;
 import java.io.IOException;
@@ -35,15 +37,13 @@ import java.util.TimerTask;
 import javax.microedition.media.*;
 import javax.microedition.media.control.*;
 
-
 /**
  * @author toshiba
  */
 
 
-public class Ushahidi extends MIDlet {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance; //,mapForm;
-    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
+public class Ushahidi extends MIDlet  {
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
@@ -107,9 +107,10 @@ public class Ushahidi extends MIDlet {
     //<editor-fold defaultstate="collapsed" desc=" Main form ">
     public void displayMainForm(){
         mainForm = new Form("Ushahidi");
-        mainForm.setLayout(new BorderLayout());
+        
 
         try {
+            mainForm.setLayout(new BorderLayout());
             imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
 
             reportButton = new Button("Add Report");
@@ -165,6 +166,7 @@ public class Ushahidi extends MIDlet {
 
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
+           
         }
 
         Command exitCommand = new Command("Exit");
@@ -176,6 +178,7 @@ public class Ushahidi extends MIDlet {
             }
        });
 
+
         mainForm.show();
     }
      //</editor-fold>
@@ -186,13 +189,7 @@ public class Ushahidi extends MIDlet {
         Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        //imglogo = Image.createImage("/ushahidi/res/map.png");
-
-//        String [] allcategories = {"Death in kiambu","Riots in UNOBI","A Child is mo...","My pen is stolen","Government is..."};
-//        final String [] deaths={"Death in kiambu","Death in Umoja","Death in westlands"};
-//        final String [] riots={"Riots in UNOBI","Riots in ANU","Riots in USIU"};
-//        final String [] sexual={"A Child is mo...","A Boy is seduces","a woman caught..."};
-//            incidentsList = new List();
+        
   
         // Update categories List
         if (getCategoryTitles() != null) {
@@ -228,7 +225,7 @@ public class Ushahidi extends MIDlet {
 
          tp = new TabbedPane();
 
-        mapLabel = new Label(getMap());
+       // mapLabel = new Label(getMap());
         incidentCategory = new ComboBox(items);
         incidentCategory.addActionListener(new ActionListener() {
 
@@ -251,26 +248,28 @@ public class Ushahidi extends MIDlet {
         mainMenu.addComponent(mapLabel);
         
         tp.addTab("Reports List", eventList);
-        tp.addTab("Reports Map", mainMenu);
+        //tp.addTab("Reports Map", mainMenu);
         //mainMenu.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, cate);
         viewForm.addComponent("Center", tp);
 
         viewForm.show();
-        viewForm.addCommand(new Command("Back") {
-             public void actionPerformed(ActionEvent ev) {
-                    displayMainForm();
-                }
-        });
-
-        viewForm.addCommand(new Command("View") {
+         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
                 int selectedIncidentIndex = incidentListModel.getSelectedIndex();
                 getSelectedIncidentByIndex(selectedIncidentIndex);
                 displayDetails();
             }
         });
+        
+        viewForm.addCommand(new Command("Back") {
+             public void actionPerformed(ActionEvent ev) {
+                    displayMainForm();
+                }
+        });
+
+       
 
     }
     //</editor-fold>
@@ -408,8 +407,8 @@ public class Ushahidi extends MIDlet {
         });
         takegallary = (new Button("From Gallery"));
 
-        buttonBar.addComponent(takephoto);
-        buttonBar.addComponent(takegallary);
+        //buttonBar.addComponent(takephoto);
+        //buttonBar.addComponent(takegallary);
         textbox.addComponent(logoLabel);
         textbox.addComponent((new Label("Title")));
         textbox.addComponent(txtitle);
@@ -431,18 +430,16 @@ public class Ushahidi extends MIDlet {
         timer.scheduleAtFixedRate(new TimerTask() {
 
             public void run() {
+                try{
                 txdate.setText(getDate().trim());
                 txdate.repaint();
+                }catch(Exception ex){
+                    System.err.println(ex.getMessage());
+                }
             }
         }, 1000, 1000); // delay, iterate
         
-        reportForm.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                timer.cancel();
-                displayMainForm();
-            }
-        });
-
+       
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");                
@@ -458,6 +455,14 @@ public class Ushahidi extends MIDlet {
                 category.setSelectedIndex(0);
             }
         });
+
+         reportForm.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                timer.cancel();
+                displayMainForm();
+            }
+        });
+
 
     }
     //</editor-fold>
@@ -514,11 +519,6 @@ public class Ushahidi extends MIDlet {
 
         instance.show();
 
-        instance.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                displaySettingsForm();
-            }
-        });
          instance.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 int id = settings.saveInstance(instanceName.getText(), instanceURL.getText());
@@ -526,6 +526,11 @@ public class Ushahidi extends MIDlet {
                     instanceName.setText("");
                     instanceURL.setText("");
                 } //end if
+            }
+        });
+        instance.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                displaySettingsForm();
             }
         });
 
@@ -546,11 +551,13 @@ public class Ushahidi extends MIDlet {
                 connected = true;
                 break;
             case 500:
-                if(Dialog.show("Server error", "An internal server error occured.", "Settings", "Exit"))
+                if(Dialog.show("Server error", "An internal server error occured.", "Settings", "Exit")){
                     displaySettingsForm();
-                else
+                }
+                else{
                     destroyApp(true);
                 connected = false;
+                }
                 break;
         } //end switch
 
@@ -590,6 +597,7 @@ public class Ushahidi extends MIDlet {
             splashForm.getStyle().setBgImage(Image.createImage("/ushahidi/res/splash.jpg"));
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
+            
         }
 
         splashForm.show();
@@ -603,9 +611,10 @@ public class Ushahidi extends MIDlet {
             // the Main Form
             do {
                 try {
-                    Thread.sleep(1500);
-                } catch (InterruptedException e) {
-                    System.err.println(e.getMessage());
+                    Thread.sleep(3500);
+                } catch (InterruptedException ex) {
+                    System.err.println(ex.getMessage());
+                    
                 }
             } while(isPrefetching());
             
@@ -642,13 +651,12 @@ public class Ushahidi extends MIDlet {
             mediaComponent.setFullScreen(true);
             mediaComponent.start();            
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         cameraForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
                     mediaComponent.stop();
-                    displayReportForm();
-
+                    
                 }
         });
          cameraForm.addCommand(new Command("Capture") {
@@ -669,10 +677,29 @@ private void captureImage() {
         Image image = Image.createImage(raw, 0, raw.length);
         mediaComponent.stop();
         cameraForm.setBgImage(image);
-        
-    }
-    catch (Exception e) {
-//showException(e);
+
+       
+        // Create TwitPic object and allocate TwitPicResponse object
+//        TwitPic tpRequest = new TwitPic("ushahidij2me", "ushahidilwuit");
+//        TwitPicResponse tpResponse = null;
+//
+//        // Make request and handle exceptions
+//        try {
+//            tpResponse = tpRequest.uploadAndPost(raw, "Incident Photo");
+//        } catch (IOException e) {
+//            //e.printStackTrace();
+//            System.err.println("error");
+//        } catch (TwitPicException e) {
+//          // e.printStackTrace();
+//           System.err.println("error");
+//        }
+//
+//        // If we got a response back, print out response variables
+//        if(tpResponse != null)
+//            tpResponse.dumpVars();
+
+    }catch (Exception e) {
+        System.err.println(e.getMessage());
     return;
 
     }
@@ -772,6 +799,7 @@ private void captureImage() {
     private void prefetchInstanceData(final String mapSource) throws NullPointerException {
         setPrefetching(true);
 
+        
         // Pre-fetch data that would otherwise take long to load
         Thread fetchMap = new Thread(new Runnable() {
             String mapKey = null;
@@ -802,7 +830,11 @@ private void captureImage() {
         Thread fetchCategories = new Thread(new Runnable() {
 
             public void run() {
-                categoryTitles = ushahidiInstance.getCategories().getTitles(1);                
+                try{
+                categoryTitles = ushahidiInstance.getCategories().getTitles(1);
+                }catch(Exception ex){
+                 System.err.println(ex.getMessage());
+                }
             }
         });
 
