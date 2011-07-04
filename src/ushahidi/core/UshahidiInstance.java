@@ -25,19 +25,19 @@ public class UshahidiInstance implements Runnable {
    
     /**
      *Tests data connection availability by connecting to the last used
-     * Ushahidi instance. Uses http://demo.ushahidi.com for the first time use
+     * Ushahidi
+     * instance. Uses http://demo.ushahidi.com for the first time use
      * and current instance for subsequent tests
      * @return true if a HTTP_CODE 200 is returned and false otherwise
      */
     public int isConnectionAvailable() {
         int connectionStatus = 0;
 
-        try {
-           
+        try {            
             instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
-           
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
@@ -121,7 +121,7 @@ public class UshahidiInstance implements Runnable {
 
         // Remove white spaces
         data = data.trim();
-        System.out.println("Data: "+data);
+//        System.out.println("Data: "+data);
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -674,12 +674,16 @@ public class UshahidiInstance implements Runnable {
 //
 //        return incidents;
 //    }
-
+    
+    
+    
+// Sample request: http://demo.ushahidi.com/api?task=incidents&by=catname&name=Empty+Category&resp=xml
+//    public void getIncidentsByCategoryName(String categoryName) {
     public Vector getIncidentsByCategoryName(String categoryName) {
-        // To handle xml errors
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
+        System.out.println(url);
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
@@ -690,46 +694,48 @@ public class UshahidiInstance implements Runnable {
             parser.setInput(reader);
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
-
+                
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if(parser.getEventType() == XmlPullParser.START_TAG) {
+                    if(parser.getEventType() == XmlPullParser.START_TAG) {
 
-                    if (parser.getName().equals("incident"))
-                        parser.nextTag();
+                        if (parser.getName().equals("incident"))
+                            parser.nextTag();
 
-                    if (parser.getName().equals("id"))
-                        id = parser.nextText();
+                        if (parser.getName().equals("id"))
+                            id = parser.nextText();
 
-                    if (parser.getName().equals("title"))
-                        title = parser.nextText();
+                        if (parser.getName().equals("title"))
+                            title = parser.nextText();
 
-                    if (parser.getName().equals("description"))
-                        description = parser.nextText();
+                        if (parser.getName().equals("description"))
+                            description = parser.nextText();
 
-                    if (parser.getName().equals("date"))
-                        date = parser.nextText();
+                        if (parser.getName().equals("date"))
+                            date = parser.nextText();
 
-                    if (parser.getName().equals("mode"))
-                        mode = parser.nextText();
+                        if (parser.getName().equals("mode"))
+                            mode = parser.nextText();
 
-                    if (parser.getName().equals("active"))
-                        active = parser.nextText();
+                        if (parser.getName().equals("active"))
+                            active = parser.nextText();
 
-                    if (parser.getName().equals("verified"))
-                        verified = parser.nextText();
+                        if (parser.getName().equals("verified"))
+                            verified = parser.nextText();
 
-                    // Location info
-                    if (parser.getName().equals("location"))
-                        parser.skipSubTree();
-                    
-                     // MediaItems is not present in the XML file and shall thus be removed
-//                    if (parser.getName().equals("mediaItems")) {
-                    if (parser.getName().equals("categories")) {
-                        incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
-                    }
+                        // Location info
+                        if (parser.getName().equals("location"))
+                            parser.skipSubTree();
+                        
+                        if (parser.getName().equals("categories"))
+                            parser.skipSubTree();
+                        
+                        if (parser.getName().equals("mediaItems")) {
+//                            System.out.println(id+" | "+title+" | "+description+" | "+date+" | "+mode+" | "+active+" | "+verified);
+                            incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
+                        }
 
-                }
-            }
+                    } //end - if(parser.getEventType() == XmlPullParser.START_TAG)
+            } // end - while (parser.next() != XmlPullParser.END_DOCUMENT)
 
 
         } catch (Exception e) {
@@ -737,7 +743,6 @@ public class UshahidiInstance implements Runnable {
         } finally {
             closeHttpConnection();
         }
-//        setCategoryIncidents(categoryIncidents);
 
         return incidentsVector;
     }
@@ -767,7 +772,7 @@ public class UshahidiInstance implements Runnable {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
-        Vector incidentsVector = new Vector();;
+        Vector incidentsVector = new Vector();
         
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
@@ -1099,12 +1104,21 @@ public class UshahidiInstance implements Runnable {
         }
     }
 
+        // sets the number of reports to be rendered to the screen
+    public static void setReportNumbers(int reportNumbers) {
+        UshahidiInstance.reportNumbers = reportNumbers;
+    }
+
+    // returns the number of reports to be displayed on the screen
+    private int getReportNumbers() { return reportNumbers; }
+
     private void setFetching(boolean fetching) {
         UshahidiInstance.fetching = fetching;
     }
 
     private boolean isFetching() { return fetching; }
 
+    private static int reportNumbers;
     private static Vector categoryIncidents = null;
     private static boolean fetching = false;
     private Vector instanceCategories = null;

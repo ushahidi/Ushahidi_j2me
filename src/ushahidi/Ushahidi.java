@@ -25,8 +25,6 @@ import javax.microedition.lcdui.AlertType;
 import ushahidi.core.UshahidiInstance;
 import ushahidi.core.UshahidiSettings;
 import com.sun.lwuit.util.Resources;
-import com.sun.midp.io.j2me.storage.File;
-import com.sun.midp.io.j2me.storage.File;
 import javax.microedition.midlet.*;
 import ushahidi.core.Gmapclass;
 import java.io.IOException;
@@ -43,7 +41,7 @@ import javax.microedition.media.control.*;
 
 
 public class Ushahidi extends MIDlet  {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;    private Button reportButton,viewButton,settingsButton,takephoto,takegallary;
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;    private Button reportButton,viewButton,settingsButton,takephoto,takegallery;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
@@ -52,7 +50,7 @@ public class Ushahidi extends MIDlet  {
     private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
-    private String[] allcategories = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
+    private String[] categoryIncidentTitles = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
     private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
@@ -127,7 +125,6 @@ public class Ushahidi extends MIDlet  {
         logoLabel.setAlignment(Component.CENTER);
 
         //buttons
-
         reportButton.addActionListener(new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
@@ -184,27 +181,26 @@ public class Ushahidi extends MIDlet  {
      //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="View incidents ">
-    public void displayViewForm() {
-        
-        Container cate = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+    public void displayViewForm() {        
+        Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
+//        Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
         
-  
+        
         // Update categories List
-        if (getCategoryTitles() != null) {
-            items = getCategoryTitles();
-            getIncidentFilter(items[0]);
+        if (getCategoryTitles() != null) {    
+            getIncidentFilter(getCategoryTitles()[0]);
         }
 
+        // Get list of incidents under the first category
         if (getIncidentTitles().length > 0)
-            allcategories = getIncidentTitles();
+            categoryIncidentTitles = getIncidentTitles();
 
-        incidentListModel = new DefaultListModel(allcategories);
+        incidentListModel = new DefaultListModel(getIncidentTitles());
         incidentsList = new List(incidentListModel);
         incidentsList.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent ae) {                
+            public void actionPerformed(ActionEvent ae) {
                 int selectedIncidentIndex = incidentListModel.getSelectedIndex();
                 getSelectedIncidentByIndex(selectedIncidentIndex);
                 displayDetails();
@@ -223,7 +219,7 @@ public class Ushahidi extends MIDlet  {
          CommonTransitions.createSlide(
          CommonTransitions.SLIDE_HORIZONTAL, true, 500));
 
-         tp = new TabbedPane();
+//         tp = new TabbedPane();s
 
        // mapLabel = new Label(getMap());
         incidentCategory = new ComboBox(items);
@@ -234,25 +230,26 @@ public class Ushahidi extends MIDlet  {
                 getIncidentFilter((String) incidentCategory.getSelectedItem());
 
             if (getIncidentTitles().length > 0)
-                allcategories = getIncidentTitles();
+                categoryIncidentTitles = getIncidentTitles();
 
                 incidentListModel.removeAll();
-                
-                for ( int i = 0; i < allcategories.length; i++ ) {
-                    incidentListModel.addItem(allcategories[i]);
+
+                for ( int i = 0; i < categoryIncidentTitles.length; i++ ) {
+                    incidentListModel.addItem(categoryIncidentTitles[i]);
                 }
             }
         });
 //        mapForm = new Form("Map");
-        cate.addComponent(incidentCategory);
-        mainMenu.addComponent(mapLabel);
-        
-        tp.addTab("Reports List", eventList);
+        container.addComponent(incidentCategory);
+//        mainMenu.addComponent(mapLabel);
+
+//        tp.addTab("Reports List", eventList);
         //tp.addTab("Reports Map", mainMenu);
         //mainMenu.addComponent(incidentsList);
 
-        viewForm.addComponent(BorderLayout.NORTH, cate);
-        viewForm.addComponent("Center", tp);
+        viewForm.addComponent(BorderLayout.NORTH, container);
+//        viewForm.addComponent("Center", tp);
+        viewForm.addComponent("Center", eventList);
 
         viewForm.show();
          viewForm.addCommand(new Command("View") {
@@ -262,14 +259,12 @@ public class Ushahidi extends MIDlet  {
                 displayDetails();
             }
         });
-        
+
         viewForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
                     displayMainForm();
                 }
         });
-
-       
 
     }
     //</editor-fold>
@@ -393,7 +388,10 @@ public class Ushahidi extends MIDlet  {
         txlocation = new TextField();
         txdate = new TextField(getDate());
 
-        category = new ComboBox(items);
+        for (int i = 0; i < getCategoryTitles().length; i++)
+            System.out.println(getCategoryTitles()[i]);
+
+        category = new ComboBox(getCategoryTitles());
 
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -405,10 +403,10 @@ public class Ushahidi extends MIDlet  {
               
           }
         });
-        takegallary = (new Button("From Gallery"));
+        takegallery = (new Button("From Gallery"));
 
         //buttonBar.addComponent(takephoto);
-        //buttonBar.addComponent(takegallary);
+        //buttonBar.addComponent(takegallery);
         textbox.addComponent(logoLabel);
         textbox.addComponent((new Label("Title")));
         textbox.addComponent(txtitle);
@@ -736,22 +734,23 @@ private void captureImage() {
 }
      //</editor-fold>
 
-    private void getIncidentFilter() {
-        Vector incident = ushahidiInstance.getIncidents();
-        holdFetchedIncidents(incident); // Hold fetched incidents
-        String[] incidentTitles = new String[incident.size()];
-
-        for (int index = 0; index < incident.size(); index++) { // Update index index
-            String[] incidentParticulars = (String[]) incident.elementAt(index);
-            incidentTitles[index] = incidentParticulars[1]; // Title
-        }
-
-        setIncidentTitles(incidentTitles);
-    }
+//    private void getIncidentFilter() {
+//        Vector incident = ushahidiInstance.getIncidents();
+//        holdFetchedIncidents(incident); // Hold fetched incidents
+//        String[] incidentTitles = new String[incident.size()];
+//
+//        for (int index = 0; index < incident.size(); index++) { // Update index index
+//            String[] incidentParticulars = (String[]) incident.elementAt(index);
+//            incidentTitles[index] = incidentParticulars[1]; // Title
+//        }
+//
+//        setIncidentTitles(incidentTitles);
+//    }
     
     private void getIncidentFilter(String categoryName) {
+//        ushahidiInstance.getIncidentsByCategoryName(categoryName);
         Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
-//        System.out.println("getIncidentFilter(Line 737): "+ incident.size());
+        System.out.println("IncidentFilter: "+incident.size());
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
@@ -778,13 +777,14 @@ private void captureImage() {
 
     private static String[] getIncidentDetails() { return Ushahidi.incidentDetails; }
 
-    private static void setIncidentTitles(String[] incidentTiltles) {
-        Ushahidi.reportedIncidentTitles = incidentTiltles;
+    private static void setIncidentTitles(String[] incidentTitles) {
+        Ushahidi.reportedIncidentTitles = incidentTitles;
     }
 
     private String[] getIncidentTitles() { return reportedIncidentTitles; }
 
     private String[] getCategoryTitles() { return categoryTitles; }
+
 
     private static void setMapApiKey(String mapApiKey) {
         Ushahidi.mapApiKey = mapApiKey;
@@ -808,21 +808,25 @@ private void captureImage() {
             // is attempted to be retrieved
             public void run() {
                 String mapData = ushahidiInstance.getGeographicMidpoint();
-                String[] mapDetails = split(mapData, "|");
-                double longitude = Double.parseDouble(mapDetails[0].toString());
-                double latitude = Double.parseDouble(mapDetails[1].toString());
+                
+                // Do not load map if no geographical midpoint is provided
+                if (mapData != null ) {
+                    String[] mapDetails = split(mapData, "|");
+                    double longitude = Double.parseDouble(mapDetails[0].toString());
+                    double latitude = Double.parseDouble(mapDetails[1].toString());
 
 
-                if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
-                    setMapApiKey(mapKey);
-                    Gmapclass gMap = new Gmapclass(getMapApiKey());
+                    if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
+                        setMapApiKey(mapKey);
+                        Gmapclass gMap = new Gmapclass(getMapApiKey());
 
-                    try {                        
-                        map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32");                        
-                    } catch (IOException ex) {
-                        System.err.println(ex.getMessage());
-                    }
-                } //end if
+                        try {
+                            map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32");
+                        } catch (IOException ex) {
+                            System.err.println(ex.getMessage());
+                        }
+                    } //end if
+                } // Null Geographical midpoint check
             }
         });
 
@@ -838,7 +842,7 @@ private void captureImage() {
             }
         });
 
-        // Thread to fetch Incedences in the background
+        // Thread to fetch Incidences in the background
 //        new Thread(new Runnable() {
 //
 //            public void run() {
@@ -875,6 +879,6 @@ private void captureImage() {
     private static String[] reportedIncidentTitles = null;
     private static boolean prefetching = false;
     private static String mapApiKey = null;
-    private String[] categoryTitles = null;
+    private static String[] categoryTitles = null;
     private Image map = null;
 }
