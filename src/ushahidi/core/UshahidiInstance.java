@@ -558,7 +558,7 @@ public class UshahidiInstance implements Runnable {
         }
     }
 
-    public Vector getIncidents() {
+    public Vector getAllIncidents() {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=all&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=all&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
@@ -571,46 +571,48 @@ public class UshahidiInstance implements Runnable {
             parser.setInput(reader);
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
-
+                
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if(parser.getEventType() == XmlPullParser.START_TAG) {
+                    if(parser.getEventType() == XmlPullParser.START_TAG) {
 
-                    if (parser.getName().equals("incident"))
-                        parser.nextTag();
+                        if (parser.getName().equals("incident"))
+                            parser.nextTag();
 
-                    if (parser.getName().equals("id"))
-                        id = parser.nextText();
+                        if (parser.getName().equals("id"))
+                            id = parser.nextText();
 
-                    if (parser.getName().equals("title"))
-                        title = parser.nextText();
+                        if (parser.getName().equals("title"))
+                            title = parser.nextText();
 
-                    if (parser.getName().equals("description"))
-                        description = parser.nextText();
+                        if (parser.getName().equals("description"))
+                            description = parser.nextText();
 
-                    if (parser.getName().equals("date"))
-                        date = parser.nextText();
+                        if (parser.getName().equals("date"))
+                            date = parser.nextText();
 
-                    if (parser.getName().equals("mode"))
-                        mode = parser.nextText();
+                        if (parser.getName().equals("mode"))
+                            mode = parser.nextText();
 
-                    if (parser.getName().equals("active"))
-                        active = parser.nextText();
+                        if (parser.getName().equals("active"))
+                            active = parser.nextText();
 
-                    if (parser.getName().equals("verified"))
-                        verified = parser.nextText();
+                        if (parser.getName().equals("verified"))
+                            verified = parser.nextText();
 
-                    // Location info
-                    if (parser.getName().equals("location"))
-                        parser.skipSubTree();
+                        // Location info
+                        if (parser.getName().equals("location"))
+                            parser.skipSubTree();
+                        
+                        if (parser.getName().equals("categories"))
+                            parser.skipSubTree();
+                        
+                        if (parser.getName().equals("mediaItems")) {
+//                            System.out.println(id+" | "+title+" | "+description+" | "+date+" | "+mode+" | "+active+" | "+verified);
+                            incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
+                        }
 
-                     // MediaItems is not present in the XML file and shall thus be removed
-//                    if (parser.getName().equals("mediaItems")) {
-                    if (parser.getName().equals("categories")) {
-                        incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
-                    }
-
-                }
-            }
+                    } //end - if(parser.getEventType() == XmlPullParser.START_TAG)
+            } // end - while (parser.next() != XmlPullParser.END_DOCUMENT)
 
 
         } catch (Exception e) {
@@ -678,12 +680,10 @@ public class UshahidiInstance implements Runnable {
     
     
 // Sample request: http://demo.ushahidi.com/api?task=incidents&by=catname&name=Empty+Category&resp=xml
-//    public void getIncidentsByCategoryName(String categoryName) {
     public Vector getIncidentsByCategoryName(String categoryName) {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
-        System.out.println(url);
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 

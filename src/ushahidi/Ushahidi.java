@@ -183,9 +183,7 @@ public class Ushahidi extends MIDlet  {
     //<editor-fold defaultstate="collapsed" desc="View incidents ">
     public void displayViewForm() {        
         Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-//        Container mainMenu = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        final Container eventList = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        
+ 
         
         // Update categories List
         if (getCategoryTitles() != null) {    
@@ -207,7 +205,6 @@ public class Ushahidi extends MIDlet  {
             }
         });
 
-         eventList.addComponent(incidentsList);
          viewForm = new Form("View incidents");
          viewForm.setLayout(new BorderLayout());
          viewForm.setScrollable(false);
@@ -219,14 +216,10 @@ public class Ushahidi extends MIDlet  {
          CommonTransitions.createSlide(
          CommonTransitions.SLIDE_HORIZONTAL, true, 500));
 
-//         tp = new TabbedPane();s
-
-       // mapLabel = new Label(getMap());
         incidentCategory = new ComboBox(items);
         incidentCategory.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent ae) {
-//                ushahidiInstance.getIncidentsByCategoryName((String) incidentCategory.getSelectedItem());
                 getIncidentFilter((String) incidentCategory.getSelectedItem());
 
             if (getIncidentTitles().length > 0)
@@ -239,17 +232,11 @@ public class Ushahidi extends MIDlet  {
                 }
             }
         });
-//        mapForm = new Form("Map");
-        container.addComponent(incidentCategory);
-//        mainMenu.addComponent(mapLabel);
 
-//        tp.addTab("Reports List", eventList);
-        //tp.addTab("Reports Map", mainMenu);
-        //mainMenu.addComponent(incidentsList);
+        container.addComponent(incidentCategory);
+        container.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, container);
-//        viewForm.addComponent("Center", tp);
-        viewForm.addComponent("Center", eventList);
 
         viewForm.show();
          viewForm.addCommand(new Command("View") {
@@ -748,9 +735,7 @@ private void captureImage() {
 //    }
     
     private void getIncidentFilter(String categoryName) {
-//        ushahidiInstance.getIncidentsByCategoryName(categoryName);
         Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
-        System.out.println("IncidentFilter: "+incident.size());
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
