@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-//import javax.microedition.lcdui.Image;
 
 public class Gmapclass {
     private static final String URL_UNRESERVED =
@@ -21,12 +20,16 @@ public class Gmapclass {
     public static final int offset = 268435456;
     public static final double radius = offset / Math.PI;
 
-    private String apiKey = null;
+    private static String apiKey = null;
 
     public Gmapclass(String key) {
         apiKey = key;
     }
 
+    public static void setMapAPIKey(String apiKey) {
+        Gmapclass.apiKey = apiKey;
+    }
+    
     public double[] geocodeAddress(String address) throws Exception {
         byte[] res = loadHttpFile(getGeocodeUrl(address));
         String[] data = split(new String(res), ',');
@@ -41,6 +44,13 @@ public class Gmapclass {
         };
     }
 
+    public Image retrieveIncidentMap(int width, int height, double lat, double lng, int zoom,
+            String format) throws IOException {
+        byte[] imageData = loadHttpFile(getIncidentMapUrl(width, height, lng, lat, zoom, format));
+
+        return Image.createImage(imageData, 0, imageData.length);
+    }
+    
     public Image retrieveStaticImage(int width, int height, double lat, double lng, int zoom,
             String format) throws IOException {
         byte[] imageData = loadHttpFile(getMapUrl(width, height, lng, lat, zoom, format));
@@ -76,6 +86,11 @@ public class Gmapclass {
                 + apiKey;
     }
 
+    private String getIncidentMapUrl(int width, int height, double lng, double lat, int zoom, String format) {
+        return "http://maps.google.com/staticmap?center=" + lat + "," + lng + "&format="
+                + format + "&zoom=" + zoom + "&size=" + width + "x" + height + "&markers=color:red|label:A|"+lat+","+lng+"&key=" + apiKey;
+    }
+    
     private String getMapUrl(int width, int height, double lng, double lat, int zoom, String format) {
         return "http://maps.google.com/staticmap?center=" + lat + "," + lng + "&format="
                 + format + "&zoom=" + zoom + "&size=" + width + "x" + height + "&key=" + apiKey;

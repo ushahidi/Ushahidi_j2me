@@ -375,9 +375,6 @@ public class Ushahidi extends MIDlet  {
         txlocation = new TextField();
         txdate = new TextField(getDate());
 
-        for (int i = 0; i < getCategoryTitles().length; i++)
-            System.out.println(getCategoryTitles()[i]);
-
         category = new ComboBox(getCategoryTitles());
 
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
@@ -386,8 +383,7 @@ public class Ushahidi extends MIDlet  {
         takephoto.addActionListener(new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
-            showCamera();
-              
+            showCamera();              
           }
         });
         takegallery = (new Button("From Gallery"));
@@ -462,20 +458,39 @@ public class Ushahidi extends MIDlet  {
         String incidentTitle = incidentParticulars[1];
         String incidentDescription = incidentParticulars[2];
         String incidentDate = incidentParticulars[3];
+        String locationName = incidentParticulars[4];
+        String latitude = incidentParticulars[5];        
+        String longitude = incidentParticulars[6];
         
+        // Get Map of the incident location
+        Image mapImg = null;
+        try {
+            mapImg = new Gmapclass(getMapApiKey()).retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8, "png32");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        
+        Label incidentMapLabel = new Label(mapImg);
         TextField dateTextField = new TextField(incidentDate);
         dateTextField.setEditable(false);
         
         TextField titleTextField = new TextField(incidentTitle);
         titleTextField.setEditable(false);
         
+        TextField locNameTextField = new TextField(locationName);
+        locNameTextField.setEditable(false);
+        
         if (Ushahidi.getIncidentDetails().length > 0) {
             detailsForm.addComponent(new Label("Date"));
             detailsForm.addComponent(dateTextField);
             detailsForm.addComponent(new Label("Title"));
             detailsForm.addComponent(titleTextField);
+            detailsForm.addComponent(new Label("Location name"));
+            detailsForm.addComponent(locNameTextField);
             detailsForm.addComponent(new Label("Description"));       
             detailsForm.addComponent(new TextArea(incidentDescription));
+            detailsForm.addComponent(new Label("Map"));
+            detailsForm.addComponent(incidentMapLabel);
         }
 
         detailsForm.show();

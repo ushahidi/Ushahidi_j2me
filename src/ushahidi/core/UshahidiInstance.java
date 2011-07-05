@@ -684,7 +684,7 @@ public class UshahidiInstance implements Runnable {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
-        String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
+        String id = null, title = null, description = null, date = null, mode = null, locationName = null, latitude = null, longitude = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
         try {
@@ -723,15 +723,30 @@ public class UshahidiInstance implements Runnable {
                             verified = parser.nextText();
 
                         // Location info
-                        if (parser.getName().equals("location"))
-                            parser.skipSubTree();
+                        if (parser.getName().equals("location")) {
+                            parser.nextTag();                                
+                            if (parser.getName().equals("id"))
+                                parser.nextText();
+                            parser.nextTag();
+                            
+                            if (parser.getName().equals("name"))
+                                locationName = parser.nextText();
+                            parser.nextTag();
+                            
+                            if (parser.getName().equals("latitude"))
+                                latitude = parser.nextText();
+                            parser.nextTag();
+                            
+                            if (parser.getName().equals("longitude"))
+                                longitude = parser.nextText();
+                            parser.nextTag();
+                        }                                                   
                         
                         if (parser.getName().equals("categories"))
                             parser.skipSubTree();
                         
                         if (parser.getName().equals("mediaItems")) {
-//                            System.out.println(id+" | "+title+" | "+description+" | "+date+" | "+mode+" | "+active+" | "+verified);
-                            incidentsVector.addElement(new String[] {id, title, description, date, mode, active, verified});
+                            incidentsVector.addElement(new String[] {id, title, description, date, locationName, latitude, longitude, mode, active, verified});
                         }
 
                     } //end - if(parser.getEventType() == XmlPullParser.START_TAG)
@@ -1059,7 +1074,8 @@ public class UshahidiInstance implements Runnable {
             closeHttpConnection();
         }
     }
-
+    
+    
     /**
      * Retrieves version number of Ushahidi engine in use
      *
