@@ -456,12 +456,27 @@ public class Ushahidi extends MIDlet  {
 
     public void displayDetails() {
         detailsForm = new Form("Incident Details");
-        detailsForm.setLayout(new BorderLayout());
-
-        TextArea incidentDetailsTextArea = new TextArea(getIncidentDetails()[2]);
-
-        if (Ushahidi.getIncidentDetails().length > 0)
-            detailsForm.addComponent(BorderLayout.CENTER, incidentDetailsTextArea);
+        detailsForm.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+        
+        String[] incidentParticulars = getIncidentDetails();
+        String incidentTitle = incidentParticulars[1];
+        String incidentDescription = incidentParticulars[2];
+        String incidentDate = incidentParticulars[3];
+        
+        TextField dateTextField = new TextField(incidentDate);
+        dateTextField.setEditable(false);
+        
+        TextField titleTextField = new TextField(incidentTitle);
+        titleTextField.setEditable(false);
+        
+        if (Ushahidi.getIncidentDetails().length > 0) {
+            detailsForm.addComponent(new Label("Date"));
+            detailsForm.addComponent(dateTextField);
+            detailsForm.addComponent(new Label("Title"));
+            detailsForm.addComponent(titleTextField);
+            detailsForm.addComponent(new Label("Description"));       
+            detailsForm.addComponent(new TextArea(incidentDescription));
+        }
 
         detailsForm.show();
 
@@ -739,7 +754,7 @@ private void captureImage() {
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
-        for (int index = 0; index < incident.size(); index++) { // Update index index
+        for (int index = incident.size() - 1; index >= 0; --index) { // Update index index
             String[] incidentParticulars = (String[]) incident.elementAt(index);
             incidentTitles[index] = incidentParticulars[1]; // Title
         }
