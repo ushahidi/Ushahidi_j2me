@@ -122,7 +122,6 @@ public class UshahidiSettings {
         int recordID = 0;
 
         try {
-
             rs = getRecordStore("InstancesDB");
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             DataOutputStream writer = new DataOutputStream(byteStream);

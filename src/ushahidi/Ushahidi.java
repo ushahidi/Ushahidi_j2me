@@ -26,7 +26,7 @@ import ushahidi.core.UshahidiInstance;
 import ushahidi.core.UshahidiSettings;
 import com.sun.lwuit.util.Resources;
 import javax.microedition.midlet.*;
-import ushahidi.core.Gmapclass;
+import ushahidi.core.IncidentMaps;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.Date;
@@ -465,7 +465,7 @@ public class Ushahidi extends MIDlet  {
         // Get Map of the incident location
         Image mapImg = null;
         try {
-            mapImg = new Gmapclass(getMapApiKey()).retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8);
+            mapImg = new IncidentMaps(getMapApiKey()).retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -833,7 +833,7 @@ private void captureImage() {
 
                     if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
                         setMapApiKey(mapKey);
-                        Gmapclass gMap = new Gmapclass(getMapApiKey());
+                        IncidentMaps gMap = new IncidentMaps(getMapApiKey());
 
                         try {
                             map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32");
