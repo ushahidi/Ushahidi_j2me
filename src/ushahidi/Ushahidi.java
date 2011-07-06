@@ -465,7 +465,7 @@ public class Ushahidi extends MIDlet  {
         // Get Map of the incident location
         Image mapImg = null;
         try {
-            mapImg = new Gmapclass(getMapApiKey()).retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8, "png32");
+            mapImg = new Gmapclass(getMapApiKey()).retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
