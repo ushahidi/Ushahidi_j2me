@@ -204,7 +204,7 @@ public class UshahidiInstance implements Runnable {
         return ( (Integer.parseInt(hour) >= 12) && (Integer.parseInt(hour) <= 23) )? "pm": "am";
     }
 
-    public String getApiKey(String maps) {
+    public void getAPIKey(String maps) {
         String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=apikeys&by="+maps+"&resp=xml") : ushahidiInstance.concat("/api?task=apikeys&by=google&resp=xml");
         String key = null;
@@ -230,7 +230,7 @@ public class UshahidiInstance implements Runnable {
             closeHttpConnection();
         }
         
-        return key;
+        IncidentMaps.setMapAPIKey(key);
     }
 
     /**

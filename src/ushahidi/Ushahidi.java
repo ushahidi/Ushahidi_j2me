@@ -815,35 +815,13 @@ private void captureImage() {
         setPrefetching(true);
 
         
-        // Pre-fetch data that would otherwise take long to load
-        Thread fetchMap = new Thread(new Runnable() {
-            String mapKey = null;
-
-            // Handle null exception that occurs when Geographical midpoint
-            // is attempted to be retrieved
+        // Load Map API Keys from the Instance
+        new Thread(new Runnable() {
+            
             public void run() {
-                String mapData = ushahidiInstance.getGeographicMidpoint();
-                
-                // Do not load map if no geographical midpoint is provided
-                if (mapData != null ) {
-                    String[] mapDetails = split(mapData, "|");
-                    double longitude = Double.parseDouble(mapDetails[0].toString());
-                    double latitude = Double.parseDouble(mapDetails[1].toString());
-
-
-                    if ((mapKey = ushahidiInstance.getApiKey(mapSource)) != null ) {
-                        setMapApiKey(mapKey);
-                        IncidentMaps gMap = new IncidentMaps(getMapApiKey());
-
-                        try {
-                            map = gMap.retrieveStaticImage(320, 240,longitude,latitude, 8, "png32");
-                        } catch (IOException ex) {
-                            System.err.println(ex.getMessage());
-                        }
-                    } //end if
-                } // Null Geographical midpoint check
-            }
-        });
+                ushahidiInstance.getAPIKey("google");
+            }            
+        }).start();        
 
         // Thread to fetch Categories in the background
         Thread fetchCategories = new Thread(new Runnable() {
@@ -867,7 +845,7 @@ private void captureImage() {
 //        }).start();
         
         // Synchronize Threads
-        fetchMap.start(); // Get Map
+//        fetchMap.start(); // Get Map
         fetchCategories.start(); // Prefetch category info
 
         do {
@@ -876,7 +854,7 @@ private void captureImage() {
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
-        } while (fetchMap.isAlive() || fetchCategories.isAlive());
+        } while (fetchCategories.isAlive()); //       } while (fetchMap.isAlive() || fetchCategories.isAlive());
                 
         setPrefetching(false);
     }
