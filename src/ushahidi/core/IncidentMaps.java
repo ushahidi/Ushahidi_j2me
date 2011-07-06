@@ -32,7 +32,7 @@ public class IncidentMaps {
         IncidentMaps.apiKey = apiKey;
     }
     
-    private String getMapAPIKey() { return IncidentMaps.apiKey; }
+    public static String getMapAPIKey() { return IncidentMaps.apiKey; }
     
     public double[] geocodeAddress(String address) throws Exception {
         byte[] res = loadHttpFile(getGeocodeUrl(address));

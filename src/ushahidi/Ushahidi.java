@@ -41,11 +41,11 @@ import javax.microedition.media.control.*;
 
 
 public class Ushahidi extends MIDlet  {
-    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;    private Button reportButton,viewButton,settingsButton,takephoto,takegallery;
+    private Form mainForm,reportForm,viewForm,settingsForm,detailsForm, splashForm,instance;    
+    private Button reportButton,viewButton,settingsButton,takephoto,takegallery;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
     private Label logoLabel, mapLabel, lbseparator;
-    private TabbedPane tp = null;
     private List incidentsList;
     private ComboBox category,incidentCategory,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
@@ -237,20 +237,20 @@ public class Ushahidi extends MIDlet  {
         container.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, container);
-
         viewForm.show();
-         viewForm.addCommand(new Command("View") {
-            public void actionPerformed(ActionEvent ev) {
-                int selectedIncidentIndex = incidentListModel.getSelectedIndex();
-                getSelectedIncidentByIndex(selectedIncidentIndex);
-                displayDetails();
-            }
-        });
 
         viewForm.addCommand(new Command("Back") {
              public void actionPerformed(ActionEvent ev) {
                     displayMainForm();
                 }
+        });
+        
+        viewForm.addCommand(new Command("View") {
+            public void actionPerformed(ActionEvent ev) {
+                int selectedIncidentIndex = incidentListModel.getSelectedIndex();
+                getSelectedIncidentByIndex(selectedIncidentIndex);
+                displayDetails();
+            }
         });
 
     }
@@ -421,6 +421,14 @@ public class Ushahidi extends MIDlet  {
         }, 1000, 1000); // delay, iterate
         
        
+
+         reportForm.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                timer.cancel();
+                displayMainForm();
+            }
+        });
+
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");                
@@ -437,19 +445,10 @@ public class Ushahidi extends MIDlet  {
             }
         });
 
-         reportForm.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                timer.cancel();
-                displayMainForm();
-            }
-        });
-
-
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="display the story">
-
+    //<editor-fold defaultstate="collapsed" desc="Incident Details">
     public void displayDetails() {
         detailsForm = new Form("Incident Details");
         detailsForm.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
@@ -465,7 +464,8 @@ public class Ushahidi extends MIDlet  {
         // Get Map of the incident location
         Image mapImg = null;
         try {
-            mapImg = new IncidentMaps(getMapApiKey()).retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8);
+            mapImg = new IncidentMaps(ushahidi.core.IncidentMaps.getMapAPIKey())
+                    .retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -534,7 +534,13 @@ public class Ushahidi extends MIDlet  {
 
         instance.show();
 
-         instance.addCommand(new Command("Submit") {
+        instance.addCommand(new Command("Back") {
+            public void actionPerformed(ActionEvent ev) {
+                displaySettingsForm();
+            }
+        });
+        
+        instance.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 int id = settings.saveInstance(instanceName.getText(), instanceURL.getText());
                 if ( id > 0 ) {
@@ -543,12 +549,7 @@ public class Ushahidi extends MIDlet  {
                 } //end if
             }
         });
-        instance.addCommand(new Command("Back") {
-            public void actionPerformed(ActionEvent ev) {
-                displaySettingsForm();
-            }
-        });
-
+        
     }
     //</editor-fold>
 
@@ -799,13 +800,6 @@ private void captureImage() {
     private String[] getIncidentTitles() { return reportedIncidentTitles; }
 
     private String[] getCategoryTitles() { return categoryTitles; }
-
-
-    private static void setMapApiKey(String mapApiKey) {
-        Ushahidi.mapApiKey = mapApiKey;
-    }
-
-    public static String getMapApiKey() { return mapApiKey; }
     
     /**@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      * @ Methods that hold pre-fetched data come here @
@@ -865,13 +859,9 @@ private void captureImage() {
 
     private boolean isPrefetching() { return prefetching; }
     
-    private Image getMap() { return map; }
-
     private static Vector fetchedIncidents = null;
     private static String[] incidentDetails = null;
     private static String[] reportedIncidentTitles = null;
     private static boolean prefetching = false;
-    private static String mapApiKey = null;
     private static String[] categoryTitles = null;
-    private Image map = null;
 }

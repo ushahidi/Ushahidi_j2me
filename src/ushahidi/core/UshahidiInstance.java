@@ -87,7 +87,7 @@ public class UshahidiInstance implements Runnable {
         
         // Retrieve Geographical co-ordianates i.e. latitude and longitude
         try {
-            geoCoordinates = (new IncidentMaps(ushahidi.Ushahidi.getMapApiKey())).geocodeAddress(incident_location);
+            geoCoordinates = (new IncidentMaps(ushahidi.core.IncidentMaps.getMapAPIKey())).geocodeAddress(incident_location);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
