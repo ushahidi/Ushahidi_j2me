@@ -26,6 +26,8 @@ public class Gmapclass {
         apiKey = key;
     }
 
+    public Gmapclass() {}
+    
     public static void setMapAPIKey(String apiKey) {
         Gmapclass.apiKey = apiKey;
     }
@@ -46,7 +48,6 @@ public class Gmapclass {
 
     public Image retrieveIncidentMap(int width, int height, double lat, double lng, int zoom) throws IOException {
         byte[] imageData = loadHttpFile(getIncidentMapUrl(width, height, lng, lat, zoom));
-        System.out.println(getIncidentMapUrl(width, height, lng, lat, zoom));
         return Image.createImage(imageData, 0, imageData.length);
     }
     
@@ -86,8 +87,9 @@ public class Gmapclass {
     }
 
     private String getIncidentMapUrl(int width, int height, double lng, double lat, int zoom) {
-        return "http://maps.google.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=8&size="+width+"x"+height+"&maptype=roadmap&markers=color:red|label:A|"+lat+","+lng+"&sensor=false";
-                
+        return "http://maps.google.com/maps/api/staticmap?center="+lat+","+lng+"&zoom="+zoom+"&size="
+                +width+"x"+height+"&maptype=roadmap&markers=color:red|label:A|"+lat+","+lng
+                +"&sensor=false";                
     }
     
     private String getMapUrl(int width, int height, double lng, double lat, int zoom, String format) {
