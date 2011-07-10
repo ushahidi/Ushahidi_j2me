@@ -45,13 +45,13 @@ public class Ushahidi extends MIDlet  {
     private Button reportButton,viewButton,settingsButton,takephoto,takegallery;
     private TextField  reportsTextField, firstNameTextField, lastNameTextField, emailTextField;
     private Image imglogo;
-    private Label logoLabel, mapLabel, lbseparator;
+    private Label logoLabel, lbseparator;
     private List incidentsList;
-    private ComboBox category,incidentCategory,instanceComboBox;
+    private ComboBox reportCategoriesComboBox,categoriesComboBox,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
     private String[] categoryIncidentTitles = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
-    private  String[] items = {"All Categories","Deaths","Riots","Sexual Assalts",
+    private  String[] categoryNames = {"All Categories","Deaths","Riots","Sexual Assalts",
                 "Property Loss","Government Forces"};
     private UshahidiSettings settings;
     private UshahidiInstance ushahidiInstance = null;
@@ -60,10 +60,7 @@ public class Ushahidi extends MIDlet  {
     private Player player;
     private VideoControl vidControl;
     private MediaComponent mediaComponent;
-//    private GoogleMaps gMaps = null;
-        
-//    GoogleStaticMap map = null;
-   
+           
     /**
      * Ushahidi Class constructor<p>
      * Instantiates two objects of the classes UshahidiSettings
@@ -182,18 +179,19 @@ public class Ushahidi extends MIDlet  {
 
     //<editor-fold defaultstate="collapsed" desc="View incidents ">
     public void displayViewForm() {        
-        Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));
- 
+        Container container = new Container(new BoxLayout(BoxLayout.Y_AXIS));        
         
         // Update categories List
-        if (getCategoryTitles() != null) {    
+        if (getCategoryTitles() != null && (getCurrentCategoryIndex() == -1)) {    
             getIncidentFilter(getCategoryTitles()[0]);
+        } else {
+            getIncidentFilter(getCategoryTitles()[getCurrentCategoryIndex()]);
         }
-
-        // Get list of incidents under the first category
+        
+        // Get list of incidents under the first reportCategoriesComboBox
         if (getIncidentTitles().length > 0)
             categoryIncidentTitles = getIncidentTitles();
-
+        
         incidentListModel = new DefaultListModel(getIncidentTitles());
         incidentsList = new List(incidentListModel);
         incidentsList.addActionListener(new ActionListener() {
@@ -216,24 +214,29 @@ public class Ushahidi extends MIDlet  {
          CommonTransitions.createSlide(
          CommonTransitions.SLIDE_HORIZONTAL, true, 500));
 
-        incidentCategory = new ComboBox(items);
-        incidentCategory.addActionListener(new ActionListener() {
+        categoriesComboBox = new ComboBox(categoryNames);        
+        if (getCurrentCategoryIndex() != -1) 
+            categoriesComboBox.setSelectedIndex(getCurrentCategoryIndex());
+        
+        categoriesComboBox.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent ae) {
-                getIncidentFilter((String) incidentCategory.getSelectedItem());
+            public void actionPerformed(ActionEvent ae) { 
+                setCurrentCategoryIndex(categoriesComboBox.getSelectedIndex());
+                getIncidentFilter((String) categoriesComboBox.getSelectedItem());
+                
+                if (getIncidentTitles().length > 0)
+                    categoryIncidentTitles = getIncidentTitles();
 
-            if (getIncidentTitles().length > 0)
-                categoryIncidentTitles = getIncidentTitles();
+                    incidentListModel.removeAll();
 
-                incidentListModel.removeAll();
-
-                for ( int i = 0; i < categoryIncidentTitles.length; i++ ) {
-                    incidentListModel.addItem(categoryIncidentTitles[i]);
+                    for ( int i = 0; i < categoryIncidentTitles.length; i++ ) {
+                        incidentListModel.addItem(categoryIncidentTitles[i]);
+                    }
                 }
-            }
-        });
+        });       
+        
 
-        container.addComponent(incidentCategory);
+        container.addComponent(categoriesComboBox);
         container.addComponent(incidentsList);
 
         viewForm.addComponent(BorderLayout.NORTH, container);
@@ -375,7 +378,7 @@ public class Ushahidi extends MIDlet  {
         txlocation = new TextField();
         txdate = new TextField(getDate());
 
-        category = new ComboBox(getCategoryTitles());
+        reportCategoriesComboBox = new ComboBox(getCategoryTitles());
 
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
@@ -400,7 +403,7 @@ public class Ushahidi extends MIDlet  {
         textbox.addComponent((new Label("Date")));
         textbox.addComponent(txdate);
         textbox.addComponent((new Label("Categories")));
-        textbox.addComponent(category);
+        textbox.addComponent(reportCategoriesComboBox);
 
         reportForm.addComponent(BorderLayout.CENTER,textbox);
         reportForm.addComponent(BorderLayout.SOUTH, buttonBar);
@@ -432,7 +435,7 @@ public class Ushahidi extends MIDlet  {
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");                
-                boolean saved = ushahidiInstance.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), category.getSelectedItem().toString());
+                boolean saved = ushahidiInstance.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), reportCategoriesComboBox.getSelectedItem().toString());
                 System.out.println("Application saved? "+saved);
                 if (saved)
                     Dialog.show("Succesful", "Your report was succesfully submitted", Dialog.TYPE_CONFIRMATION, null, "Ok", "Cancel");
@@ -441,7 +444,7 @@ public class Ushahidi extends MIDlet  {
                 txtitle.setText("");
                 txdescri.setText("");
                 txlocation.setText("");
-                category.setSelectedIndex(0);
+                reportCategoriesComboBox.setSelectedIndex(0);
             }
         });
 
@@ -778,6 +781,12 @@ private void captureImage() {
         setIncidentTitles(incidentTitles);
     }
 
+    private void setCurrentCategoryIndex(int currentCategoryIndex) { 
+        Ushahidi.currentCategoryIndex = currentCategoryIndex; 
+    }
+
+    private int getCurrentCategoryIndex() { return currentCategoryIndex; }
+    
     private void getSelectedIncidentByIndex(int index) {
         String[] selectedStory =  (String[]) Ushahidi.fetchedIncidents.elementAt(index);
         setIncidentDetails(selectedStory);
@@ -829,18 +838,13 @@ private void captureImage() {
             }
         });
 
-        // Thread to fetch Incidences in the background
-//        new Thread(new Runnable() {
-//
-//            public void run() {
-//                if (categoryTitles.length != 0)
-//                    ushahidiInstance.getIncidentsByCategoryName(categoryTitles[0]);
-//            }
-//        }).start();
-        
-        // Synchronize Threads
-//        fetchMap.start(); // Get Map
-        fetchCategories.start(); // Prefetch category info
+        // Thread to fetch IncidencesSinceId in the background
+        Thread fetchRecentIncidents = new Thread(new Runnable() {
+            
+            public void run() {
+            }
+        });
+        fetchCategories.start(); // Prefetch reportCategoriesComboBox info
 
         do {
             try {
@@ -858,6 +862,8 @@ private void captureImage() {
     }
 
     private boolean isPrefetching() { return prefetching; }
+    
+    private static int currentCategoryIndex = -1;
     
     private static Vector fetchedIncidents = null;
     private static String[] incidentDetails = null;

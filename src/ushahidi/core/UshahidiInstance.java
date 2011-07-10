@@ -247,7 +247,7 @@ public class UshahidiInstance implements Runnable {
         
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -315,7 +315,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -349,7 +349,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -392,7 +392,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -448,7 +448,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -477,7 +477,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -508,7 +508,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -566,7 +566,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -689,7 +689,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -791,7 +791,7 @@ public class UshahidiInstance implements Runnable {
         
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -853,7 +853,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -915,7 +915,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -988,7 +988,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1021,7 +1021,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1088,7 +1088,7 @@ public class UshahidiInstance implements Runnable {
 
         try {
             instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1133,7 +1133,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     private boolean isFetching() { return fetching; }
-
+    
     private static int reportNumbers;
     private static Vector categoryIncidents = null;
     private static boolean fetching = false;
