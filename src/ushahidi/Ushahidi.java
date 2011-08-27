@@ -47,8 +47,8 @@ public class Ushahidi extends MIDlet  {
     private ComboBox reportCategoriesComboBox,categoriesComboBox,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
-    private String[] categoryIncidentTitles;
-    private  String[] categoryNames;
+    private String[] categoryIncidentTitles = {};
+    private  String[] categoryNames = {};
     private Settings settings;
     private API api = null;
     private DefaultListModel incidentListModel = null;
