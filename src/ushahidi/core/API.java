@@ -80,8 +80,8 @@ public class API implements Runnable {
         String success = "";
         double[] geoCoordinates = null;
 
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api") : ushahidiInstance.concat("/api");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api") : deployment.concat("/api");
         String [] setting = (new Settings()).getSettings();        
         String data = "";
         
@@ -205,8 +205,8 @@ public class API implements Runnable {
     }
 
     public void getAPIKey(String maps) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=apikeys&by="+maps+"&resp=xml") : ushahidiInstance.concat("/api?task=apikeys&by=google&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=apikeys&by="+maps+"&resp=xml") : deployment.concat("/api?task=apikeys&by=google&resp=xml");
         String key = null;
 
         try {
@@ -240,8 +240,8 @@ public class API implements Runnable {
      */
     //<editor-fold defaultstate="collapsed" desc="Get Categories">
     public API getCategories() {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=categories&resp=xml") : deployment.concat("/api?task=categories&resp=xml");
         instanceCategories = new Vector();
         String id = null, title = null, desc = null, color = null;
         
@@ -309,8 +309,8 @@ public class API implements Runnable {
 
     public String getCategoryById(int id) {
         // Handles the forward slash at the end of the instance.
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&by="+id+"&resp=xml") : ushahidiInstance.concat("/api?task=categories&by="+id+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=categories&by="+id+"&resp=xml") : deployment.concat("/api?task=categories&by="+id+"&resp=xml");
         String categories = null;
 
         try {
@@ -342,8 +342,8 @@ public class API implements Runnable {
     }
 
     public Vector getCountries() {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=countries&resp=xml") : ushahidiInstance.concat("/api?task=countries&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=countries&resp=xml") : deployment.concat("/api?task=countries&resp=xml");
         String id = null, iso = null, name = null, capital = null;
         Vector countryVector = new Vector();
 
@@ -387,8 +387,8 @@ public class API implements Runnable {
     }
 
     public void getCountryById(int id) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+id+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+id+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=country&by="+id+"&resp=xml") : deployment.concat("/api?task=country&by="+id+"&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);
@@ -415,8 +415,8 @@ public class API implements Runnable {
     }
 
     public void getCoutryByISO(String iso) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+iso+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+iso+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=country&by="+iso+"&resp=xml") : deployment.concat("/api?task=country&by="+iso+"&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);
@@ -443,8 +443,8 @@ public class API implements Runnable {
     }
 
     public void getCountryByName(String countryName) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+countryName+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+countryName+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=country&by="+countryName+"&resp=xml") : deployment.concat("/api?task=country&by="+countryName+"&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);
@@ -471,8 +471,8 @@ public class API implements Runnable {
     }
 
     public void getLocations() {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&resp=xml") : ushahidiInstance.concat("/api?task=locations&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=locations&resp=xml") : deployment.concat("/api?task=locations&resp=xml");
         String locations = null;
 
         try {
@@ -503,8 +503,8 @@ public class API implements Runnable {
     }
 
     public void getLocationById(int locId) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&by="+locId+"&resp=xml") : ushahidiInstance.concat("/api?task=locations&by="+locId+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=locations&by="+locId+"&resp=xml") : deployment.concat("/api?task=locations&by="+locId+"&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);
@@ -531,8 +531,8 @@ public class API implements Runnable {
     }
 
     public void getLocationByCountryId(int countryId) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&by="+countryId+"&resp=xml") : ushahidiInstance.concat("/api?task=locations&by="+countryId+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=locations&by="+countryId+"&resp=xml") : deployment.concat("/api?task=locations&by="+countryId+"&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);
@@ -559,8 +559,8 @@ public class API implements Runnable {
     }
 
     public Vector getAllIncidents() {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=all&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=all&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&by=all&resp=xml") : deployment.concat("/api?task=incidents&by=all&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
@@ -625,8 +625,8 @@ public class API implements Runnable {
     }
 
 //    public String getIncidentsByCategoryId(int categoryId) {
-//        String ushahidiInstance = API.getDeployment();
-//        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catid&id="+categoryId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catid&id="+categoryId+"&resp=xml");
+//        String deployment = API.getDeployment();
+//        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&by=catid&id="+categoryId+"&resp=xml") : deployment.concat("/api?task=incidents&by=catid&id="+categoryId+"&resp=xml");
 //        String incidents = null;
 //
 //        try {
@@ -681,9 +681,9 @@ public class API implements Runnable {
     
 // Sample request: http://demo.ushahidi.com/api?task=incidents&by=catname&name=Empty+Category&resp=xml
     public Vector getIncidentsByCategoryName(String categoryName) {
-        String ushahidiInstance = API.getDeployment();
+        String deployment = API.getDeployment();
         categoryName = categoryName.replace(' ', '+');
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : deployment.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, locationName = null, latitude = null, longitude = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
@@ -784,8 +784,8 @@ public class API implements Runnable {
 //    }
 
     public void getIncidentsByLocationId(int locationId) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : deployment.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
         
@@ -846,8 +846,8 @@ public class API implements Runnable {
     }
 
     public void getIncidentsByLocationName(int locationName) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locname&name="+locationName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationName+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&by=locname&name="+locationName+"&resp=xml") : deployment.concat("/api?task=incidents&by="+locationName+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();;
 
@@ -908,8 +908,8 @@ public class API implements Runnable {
     }
 
      public void getIncidentsBySinceId(int sinceId) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml") : deployment.concat("/api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
@@ -982,8 +982,8 @@ public class API implements Runnable {
      * @return Number of approved incident reports
      */
     public int getIncidentCount() {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidentcount&resp=xml") : ushahidiInstance.concat("/api?task=incidentcount&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidentcount&resp=xml") : deployment.concat("/api?task=incidentcount&resp=xml");
         String incidentCount = null;
 
         try {
@@ -1015,8 +1015,8 @@ public class API implements Runnable {
     }
 
    public String getGeographicMidpoint() {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=geographicmidpoint&resp=xml") : ushahidiInstance.concat("/api?task=geographicmidpoint&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=geographicmidpoint&resp=xml") : deployment.concat("/api?task=geographicmidpoint&resp=xml");
         String coordinate = null;
 
         try {
@@ -1048,8 +1048,8 @@ public class API implements Runnable {
     }
 
     public void getIncidentsOrderBy(String fieldName) {
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&orderfield="+fieldName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&orderfield="+fieldName+"&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=incidents&orderfield="+fieldName+"&resp=xml") : deployment.concat("/api?task=incidents&orderfield="+fieldName+"&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);
@@ -1083,8 +1083,8 @@ public class API implements Runnable {
      */
     public String getVersion() {
         String version = null;
-        String ushahidiInstance = API.getDeployment();
-        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=version&resp=xml") : ushahidiInstance.concat("/api?task=version&resp=xml");
+        String deployment = API.getDeployment();
+        String url = (deployment.endsWith("/"))? deployment.concat("api?task=version&resp=xml") : deployment.concat("/api?task=version&resp=xml");
 
         try {
             connection = (HttpConnection) Connector.open(url);

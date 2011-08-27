@@ -77,15 +77,14 @@ public class Ushahidi extends MIDlet  {
 
     public void startApp() {
          Display.init(this);
-
-         try {
+        try {
             Resources res = Resources.open("/res/Ushahidi.res");
             UIManager.getInstance().setThemeProps(res.getTheme("Ushahidi"));
-         } catch(IOException ex) {
+         }
+         catch(IOException ex) {
              Alert uiManAlert = new Alert("UIManager error", ex.getMessage(), null, AlertType.ERROR);
              uiManAlert.setTimeout(50);
          }
-
          showSplashScreen();
     }
 
