@@ -31,6 +31,8 @@ import java.util.TimerTask;
 import javax.microedition.media.*;
 import javax.microedition.media.control.*;
 
+import ushahidi.core.I18N;
+
 
 /**
  * @author toshiba
@@ -97,16 +99,16 @@ public class Ushahidi extends MIDlet  {
 
     //<editor-fold defaultstate="collapsed" desc=" Main form ">
     public void displayMainForm(){
-        mainForm = new Form("Ushahidi");
+        mainForm = new Form(I18N.s("ushahidi"));
         
 
         try {
             mainForm.setLayout(new BorderLayout());
             imglogo = Image.createImage("/ushahidi/res/logo.png");
 
-            reportButton = new Button("Add Report");
-            viewButton = new Button("View Reports");
-            settingsButton = new Button("Settings");
+            reportButton = new Button(I18N.s("add_report"));
+            viewButton = new Button(I18N.s("view_reports"));
+            settingsButton = new Button(I18N.s("settings"));
 
             reportButton.setAlignment(Component.CENTER);
             viewButton.setAlignment(Component.CENTER);
