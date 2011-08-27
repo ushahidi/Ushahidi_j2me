@@ -80,7 +80,7 @@ public class Ushahidi extends MIDlet  {
 
          try {
             Resources res = Resources.open("/res/Ushahidi.res");
-            UIManager.getInstance().setThemeProps(res.getTheme("Ushahidi"));
+            UIManager.getInstance().setThemeProps(res.getTheme(I18N.s("ushahidi")));
          } catch(IOException ex) {
              Alert uiManAlert = new Alert("UIManager error", ex.getMessage(), null, AlertType.ERROR);
              uiManAlert.setTimeout(50);
@@ -161,7 +161,7 @@ public class Ushahidi extends MIDlet  {
            
         }
 
-        Command exitCommand = new Command("Exit");
+        Command exitCommand = new Command(I18N.s("exit"));
         mainForm.addCommand(exitCommand);
         mainForm.addCommandListener(new ActionListener() {
 
@@ -201,7 +201,7 @@ public class Ushahidi extends MIDlet  {
             }
         });
 
-         viewForm = new Form("View incidents");
+         viewForm = new Form("View Reports");
          viewForm.setLayout(new BorderLayout());
          viewForm.setScrollable(false);
          viewForm.setTransitionOutAnimator(
@@ -240,13 +240,13 @@ public class Ushahidi extends MIDlet  {
         viewForm.addComponent(BorderLayout.NORTH, container);
         viewForm.show();
 
-        viewForm.addCommand(new Command("Back") {
+        viewForm.addCommand(new Command(I18N.s("back")) {
              public void actionPerformed(ActionEvent ev) {
                     displayMainForm();
                 }
         });
         
-        viewForm.addCommand(new Command("View") {
+        viewForm.addCommand(new Command(I18N.s("view")) {
             public void actionPerformed(ActionEvent ev) {
                 int selectedIncidentIndex = incidentListModel.getSelectedIndex();
                 if (selectedIncidentIndex > -1 && Ushahidi.fetchedIncidents.size() > selectedIncidentIndex) {
@@ -301,15 +301,15 @@ public class Ushahidi extends MIDlet  {
          });
          
          Container formComponents = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-         formComponents.addComponent(new Label("Instance"));
+         formComponents.addComponent(new Label(I18N.s("deployment")));
          formComponents.addComponent(instanceComboBox);
-         formComponents.addComponent(new Label("No. of reports"));
+         formComponents.addComponent(new Label(I18N.s("no_of_reports")));
          formComponents.addComponent(reportsTextField);
-         formComponents.addComponent(new Label("First name"));
+         formComponents.addComponent(new Label(I18N.s("first_name")));
          formComponents.addComponent(firstNameTextField);
-         formComponents.addComponent(new Label("Last name"));
+         formComponents.addComponent(new Label(I18N.s("last_name")));
          formComponents.addComponent(lastNameTextField);
-         formComponents.addComponent(new Label("E-mail"));
+         formComponents.addComponent(new Label(I18N.s("email")));
          formComponents.addComponent(emailTextField);
 
          settingsForm.addComponent(BorderLayout.CENTER, formComponents);
@@ -321,28 +321,28 @@ public class Ushahidi extends MIDlet  {
          CommonTransitions.createSlide(
          CommonTransitions.SLIDE_VERTICAL, true, 500));
 
-         settingsForm.addCommand(new Command("Back") {
+         settingsForm.addCommand(new Command(I18N.s("back")) {
              public void actionPerformed(ActionEvent ev) {
                  displayMainForm();
              }
          });
 
-         settingsForm.addCommand(new Command("Save") {
+         settingsForm.addCommand(new Command(I18N.s("save")) {
              public void actionPerformed(ActionEvent ev) {
                  //Call function to save settings
                  settings.getDeploymentByName(instanceComboBox.getSelectedItem());
                  settings.saveSettings(instanceComboBox.getSelectedIndex(), reportsTextField.getText(), firstNameTextField.getText(), lastNameTextField.getText(), emailTextField.getText());
 
                  // Prefetch any data that may take long to retrieve
-                 if(Dialog.show("Restart", "A restart is needed to load selected"
-                         + " instance. Would you wish to exit the application now?", "Yes", "No"))
+                 if(Dialog.show(I18N.s("restart"), "A restart is needed to load selected"
+                         + " deployment. Would you wish to exit the application now?", I18N.s("yes"), I18N.s("no")))
                      destroyApp(true);
                  else
                      displayMainForm();
              }
          });
 
-         settingsForm.addCommand(new Command("Add instance") {
+         settingsForm.addCommand(new Command(I18N.s("add_deployment")) { //add instance
              public void actionPerformed(ActionEvent ev) {
                 addUshahidiInstance();
              }
@@ -357,7 +357,7 @@ public class Ushahidi extends MIDlet  {
     //<editor-fold defaultstate="collapsed" desc="Report incident ">
     public void displayReportForm(){
         
-        reportForm = new Form("Report incident");
+        reportForm = new Form(I18N.s("add_report"));
         reportForm.setLayout(new BorderLayout());
         reportForm.setTransitionInAnimator(
         CommonTransitions.createSlide(
@@ -382,27 +382,27 @@ public class Ushahidi extends MIDlet  {
 
         Container buttonBar = new Container(new BoxLayout(BoxLayout.X_AXIS));
         Container textbox = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        takephoto = (new Button("Take Photo"));
+        takephoto = (new Button(I18N.s("take_photo")));
         takephoto.addActionListener(new ActionListener() {
 
           public void actionPerformed(ActionEvent ae) {
             showCamera();              
           }
         });
-        takegallery = (new Button("From Gallery"));
+        takegallery = (new Button(I18N.s("from_gallery")));
 
         //buttonBar.addComponent(takephoto);
         //buttonBar.addComponent(takegallery);
         textbox.addComponent(logoLabel);
-        textbox.addComponent((new Label("Title")));
+        textbox.addComponent((new Label(I18N.s("title"))));
         textbox.addComponent(txtitle);
-        textbox.addComponent((new Label("Description")));
+        textbox.addComponent((new Label(I18N.s("description"))));
         textbox.addComponent(txdescri);
-        textbox.addComponent((new Label("Location")));
+        textbox.addComponent((new Label(I18N.s("location"))));
         textbox.addComponent(txlocation);
-        textbox.addComponent((new Label("Date")));
+        textbox.addComponent((new Label(I18N.s("date"))));
         textbox.addComponent(txdate);
-        textbox.addComponent((new Label("Categories")));
+        textbox.addComponent((new Label(I18N.s("categeories"))));
         textbox.addComponent(reportCategoriesComboBox);
 
         reportForm.addComponent(BorderLayout.CENTER,textbox);
@@ -425,22 +425,22 @@ public class Ushahidi extends MIDlet  {
         
        
 
-         reportForm.addCommand(new Command("Back") {
+         reportForm.addCommand(new Command(I18N.s("back")) {
             public void actionPerformed(ActionEvent ev) {
                 timer.cancel();
                 displayMainForm();
             }
         });
 
-        reportForm.addCommand(new Command("Submit") {
+        reportForm.addCommand(new Command(I18N.s("submit")) {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");                
                 boolean saved = api.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), reportCategoriesComboBox.getSelectedItem().toString());
                 System.out.println("Application saved? "+saved);
                 if (saved)
-                    Dialog.show("Succesful", "Your report was succesfully submitted", Dialog.TYPE_CONFIRMATION, null, "Ok", "Cancel");
+                    Dialog.show("Succesful", "Your report was succesfully submitted", Dialog.TYPE_CONFIRMATION, null, I18N.s("ok"),I18N.s("cancel"));
                 else
-                    Dialog.show("Failure", "An error occured while submitting your report.", "Ok", "Cancel");
+                    Dialog.show("Failure", "An error occured while submitting your report.", I18N.s("ok"), I18N.s("cancel"));
                 txtitle.setText("");
                 txdescri.setText("");
                 txlocation.setText("");
@@ -453,7 +453,7 @@ public class Ushahidi extends MIDlet  {
     
     //<editor-fold defaultstate="collapsed" desc="Incident Details">
     public void displayDetails() {
-        detailsForm = new Form("Incident Details");
+        detailsForm = new Form(I18N.s("report_details"));
         detailsForm.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         
         String[] incidentParticulars = getIncidentDetails();
@@ -484,21 +484,21 @@ public class Ushahidi extends MIDlet  {
         locNameTextField.setEditable(false);
         
         if (Ushahidi.getIncidentDetails().length > 0) {
-            detailsForm.addComponent(new Label("Date"));
+            detailsForm.addComponent(new Label(I18N.s("date")));
             detailsForm.addComponent(dateTextField);
-            detailsForm.addComponent(new Label("Title"));
+            detailsForm.addComponent(new Label(I18N.s("title")));
             detailsForm.addComponent(titleTextField);
-            detailsForm.addComponent(new Label("Location name"));
+            detailsForm.addComponent(new Label(I18N.s("location_name")));
             detailsForm.addComponent(locNameTextField);
-            detailsForm.addComponent(new Label("Description"));       
+            detailsForm.addComponent(new Label(I18N.s("description")));       
             detailsForm.addComponent(new TextArea(incidentDescription));
-            detailsForm.addComponent(new Label("Map"));
+            detailsForm.addComponent(new Label(I18N.s("map")));
             detailsForm.addComponent(incidentMapLabel);
         }
 
         detailsForm.show();
 
-        detailsForm.addCommand(new Command("Back") {
+        detailsForm.addCommand(new Command(I18N.s("back")) {
             public void actionPerformed(ActionEvent ev) {
                 displayViewForm();
             }
@@ -509,7 +509,7 @@ public class Ushahidi extends MIDlet  {
 
     //<editor-fold defaultstate="collapsed" desc="Create an instance">
     public void addUshahidiInstance() {
-        instance = new Form("Add an Instance");
+        instance = new Form("Add an Deployment");
         instance.setLayout(new BorderLayout());
 
         try {
@@ -524,9 +524,9 @@ public class Ushahidi extends MIDlet  {
         instanceURL.setCursorPosition(7);
 
          mainMenu.addComponent(logoLabel);
-         mainMenu.addComponent(new Label("Instance Name"));
+         mainMenu.addComponent(new Label(I18N.s("deployment_name")));
          mainMenu.addComponent(instanceName);
-           mainMenu.addComponent(new Label("Instance Url"));
+           mainMenu.addComponent(new Label(I18N.s("deployment_url")));
          mainMenu.addComponent(instanceURL);
 
             instance.addComponent(BorderLayout.NORTH, mainMenu);
@@ -570,7 +570,7 @@ public class Ushahidi extends MIDlet  {
                 connected = true;
                 break;
             case 500:
-                if(Dialog.show("Server error", "An internal server error occured.", "Settings", "Exit")){
+                if(Dialog.show(I18N.s("server_error"), "An internal server error occured.", I18N.s("setting"), I18N.s("exit"))){
                     displaySettingsForm();
                 }
                 else{
@@ -602,7 +602,7 @@ public class Ushahidi extends MIDlet  {
     private void showSplashScreen() {
         splashForm = new Form();
         splashForm.setLayout(new BorderLayout());
-        Command exitCommand = new Command("Exit");
+        Command exitCommand = new Command(I18N.s("exit"));
         splashForm.addCommand(exitCommand);
         splashForm.setBackCommand(exitCommand);
         splashForm.addCommandListener(new ActionListener() {
@@ -645,8 +645,8 @@ public class Ushahidi extends MIDlet  {
         }
         else {
 
-        if (Dialog.show("Connection error", "There was an error establishing data connection."
-            + "\nPlease check your phone internet settings or your credit balance." , "Settings" , "Exit"))
+        if (Dialog.show(I18N.s("connection_error"), "There was an error establishing data connection."
+            + "\nPlease check your phone internet settings or your credit balance." , I18N.s("setting") , I18N.s("exit")))
             displaySettingsForm();
         else
             destroyApp(true);
@@ -656,7 +656,7 @@ public class Ushahidi extends MIDlet  {
      //</editor-fold>
   
     private void showCamera() {
-        cameraForm = new Form("Capture Image");
+        cameraForm = new Form(I18N.s("capture_image"));
         
         try {
             player = Manager.createPlayer("capture://video");
@@ -672,13 +672,13 @@ public class Ushahidi extends MIDlet  {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-        cameraForm.addCommand(new Command("Back") {
+        cameraForm.addCommand(new Command(I18N.s("back")) {
              public void actionPerformed(ActionEvent ev) {
                     mediaComponent.stop();
                     
                 }
         });
-         cameraForm.addCommand(new Command("Capture") {
+         cameraForm.addCommand(new Command(I18N.s("capture")) {
             public void actionPerformed(ActionEvent ev) {
                 captureImage();
             }
