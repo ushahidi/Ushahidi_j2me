@@ -18,7 +18,7 @@ import org.xmlpull.v1.XmlPullParser;
  *
  * @author stuart
  */
-public class UshahidiInstance implements Runnable {
+public class API implements Runnable {
 
     public void run() {
     }
@@ -34,7 +34,7 @@ public class UshahidiInstance implements Runnable {
         int connectionStatus = 0;
 
         try {            
-            instanceConnection = (HttpConnection) Connector.open(getUshahidiInstance());
+            instanceConnection = (HttpConnection) Connector.open(getAPI());
             instanceConnection.setRequestMethod(HttpConnection.HEAD);
             connectionStatus = instanceConnection.getResponseCode();
 
@@ -52,8 +52,8 @@ public class UshahidiInstance implements Runnable {
      *
      * @param currentInstance
      */
-    public static void setUshahidiInstance(String currentInstance) {
-        UshahidiInstance.currentInstance = currentInstance;
+    public static void setAPI(String currentInstance) {
+        API.currentInstance = currentInstance;
     }
 
     /**
@@ -61,7 +61,7 @@ public class UshahidiInstance implements Runnable {
      *
      * @return URL of current/active Ushahidi instance
      */
-    public static String getUshahidiInstance() { return currentInstance; }    
+    public static String getAPI() { return currentInstance; }
 
     /**
      * This method submits reports to an instance of an Ushahidi engine based on
@@ -80,14 +80,14 @@ public class UshahidiInstance implements Runnable {
         String success = "";
         double[] geoCoordinates = null;
 
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api") : ushahidiInstance.concat("/api");
-        String [] setting = (new UshahidiSettings()).getSettings();        
+        String [] setting = (new Settings()).getSettings();        
         String data = "";
         
         // Retrieve Geographical co-ordianates i.e. latitude and longitude
         try {
-            geoCoordinates = (new IncidentMaps(ushahidi.core.IncidentMaps.getMapAPIKey())).geocodeAddress(incident_location);
+            geoCoordinates = (new Maps(ushahidi.core.Maps.getMapAPIKey())).geocodeAddress(incident_location);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -205,7 +205,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getAPIKey(String maps) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=apikeys&by="+maps+"&resp=xml") : ushahidiInstance.concat("/api?task=apikeys&by=google&resp=xml");
         String key = null;
 
@@ -230,7 +230,7 @@ public class UshahidiInstance implements Runnable {
             closeHttpConnection();
         }
         
-        IncidentMaps.setMapAPIKey(key);
+        Maps.setMapAPIKey(key);
     }
 
     /**
@@ -239,8 +239,8 @@ public class UshahidiInstance implements Runnable {
      * @return An XML with the categories in ascending order
      */
     //<editor-fold defaultstate="collapsed" desc="Get Categories">
-    public UshahidiInstance getCategories() {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+    public API getCategories() {
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
         instanceCategories = new Vector();
         String id = null, title = null, desc = null, color = null;
@@ -309,7 +309,7 @@ public class UshahidiInstance implements Runnable {
 
     public String getCategoryById(int id) {
         // Handles the forward slash at the end of the instance.
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&by="+id+"&resp=xml") : ushahidiInstance.concat("/api?task=categories&by="+id+"&resp=xml");
         String categories = null;
 
@@ -342,7 +342,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public Vector getCountries() {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=countries&resp=xml") : ushahidiInstance.concat("/api?task=countries&resp=xml");
         String id = null, iso = null, name = null, capital = null;
         Vector countryVector = new Vector();
@@ -387,7 +387,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getCountryById(int id) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+id+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+id+"&resp=xml");
 
         try {
@@ -415,7 +415,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getCoutryByISO(String iso) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+iso+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+iso+"&resp=xml");
 
         try {
@@ -443,7 +443,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getCountryByName(String countryName) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+countryName+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+countryName+"&resp=xml");
 
         try {
@@ -471,7 +471,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getLocations() {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&resp=xml") : ushahidiInstance.concat("/api?task=locations&resp=xml");
         String locations = null;
 
@@ -503,7 +503,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getLocationById(int locId) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&by="+locId+"&resp=xml") : ushahidiInstance.concat("/api?task=locations&by="+locId+"&resp=xml");
 
         try {
@@ -531,7 +531,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getLocationByCountryId(int countryId) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&by="+countryId+"&resp=xml") : ushahidiInstance.concat("/api?task=locations&by="+countryId+"&resp=xml");
 
         try {
@@ -559,7 +559,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public Vector getAllIncidents() {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=all&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=all&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
@@ -625,7 +625,7 @@ public class UshahidiInstance implements Runnable {
     }
 
 //    public String getIncidentsByCategoryId(int categoryId) {
-//        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+//        String ushahidiInstance = API.getAPI();
 //        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catid&id="+categoryId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catid&id="+categoryId+"&resp=xml");
 //        String incidents = null;
 //
@@ -681,7 +681,7 @@ public class UshahidiInstance implements Runnable {
     
 // Sample request: http://demo.ushahidi.com/api?task=incidents&by=catname&name=Empty+Category&resp=xml
     public Vector getIncidentsByCategoryName(String categoryName) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, locationName = null, latitude = null, longitude = null, active = null, verified = null;
@@ -763,7 +763,7 @@ public class UshahidiInstance implements Runnable {
     }
 
 //    public static void setCategoryIncidents(Vector categoryIncidents) {
-//        UshahidiInstance.categoryIncidents = categoryIncidents;
+//        API.categoryIncidents = categoryIncidents;
 //    }
 //
 //    public static Vector getCategoryIncidents() {
@@ -784,7 +784,7 @@ public class UshahidiInstance implements Runnable {
 //    }
 
     public void getIncidentsByLocationId(int locationId) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
@@ -846,7 +846,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getIncidentsByLocationName(int locationName) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locname&name="+locationName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationName+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();;
@@ -908,7 +908,7 @@ public class UshahidiInstance implements Runnable {
     }
 
      public void getIncidentsBySinceId(int sinceId) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
@@ -982,7 +982,7 @@ public class UshahidiInstance implements Runnable {
      * @return Number of approved incident reports
      */
     public int getIncidentCount() {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidentcount&resp=xml") : ushahidiInstance.concat("/api?task=incidentcount&resp=xml");
         String incidentCount = null;
 
@@ -1015,7 +1015,7 @@ public class UshahidiInstance implements Runnable {
     }
 
    public String getGeographicMidpoint() {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=geographicmidpoint&resp=xml") : ushahidiInstance.concat("/api?task=geographicmidpoint&resp=xml");
         String coordinate = null;
 
@@ -1048,7 +1048,7 @@ public class UshahidiInstance implements Runnable {
     }
 
     public void getIncidentsOrderBy(String fieldName) {
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&orderfield="+fieldName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&orderfield="+fieldName+"&resp=xml");
 
         try {
@@ -1083,7 +1083,7 @@ public class UshahidiInstance implements Runnable {
      */
     public String getVersion() {
         String version = null;
-        String ushahidiInstance = UshahidiInstance.getUshahidiInstance();
+        String ushahidiInstance = API.getAPI();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=version&resp=xml") : ushahidiInstance.concat("/api?task=version&resp=xml");
 
         try {
@@ -1122,14 +1122,14 @@ public class UshahidiInstance implements Runnable {
 
         // sets the number of reports to be rendered to the screen
     public static void setReportNumbers(int reportNumbers) {
-        UshahidiInstance.reportNumbers = reportNumbers;
+        API.reportNumbers = reportNumbers;
     }
 
     // returns the number of reports to be displayed on the screen
     private int getReportNumbers() { return reportNumbers; }
 
     private void setFetching(boolean fetching) {
-        UshahidiInstance.fetching = fetching;
+        API.fetching = fetching;
     }
 
     private boolean isFetching() { return fetching; }

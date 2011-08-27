@@ -9,7 +9,7 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
-public class IncidentMaps {
+public class Maps {
     private static final String URL_UNRESERVED =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
         "abcdefghijklmnopqrstuvwxyz" +
@@ -22,17 +22,17 @@ public class IncidentMaps {
 
     private static String apiKey = null;
 
-    public IncidentMaps(String key) {
+    public Maps(String key) {
         apiKey = key;
     }
 
-    public IncidentMaps() {}
+    public Maps() {}
     
     public static void setMapAPIKey(String apiKey) {
-        IncidentMaps.apiKey = apiKey;
+        Maps.apiKey = apiKey;
     }
     
-    public static String getMapAPIKey() { return IncidentMaps.apiKey; }
+    public static String getMapAPIKey() { return Maps.apiKey; }
     
     public double[] geocodeAddress(String address) throws Exception {
         byte[] res = loadHttpFile(getGeocodeUrl(address));

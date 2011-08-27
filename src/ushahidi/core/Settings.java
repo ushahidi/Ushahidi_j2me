@@ -18,7 +18,7 @@ import javax.microedition.rms.RecordStoreNotOpenException;
  *
  * @author stuart
  */
-public class UshahidiSettings {
+public class Settings {
 
     private RecordStore getRecordStore(String recordStore) {
         RecordStore instanceStore = null;
@@ -46,7 +46,7 @@ public class UshahidiSettings {
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         } finally {
-            UshahidiInstance.setUshahidiInstance(instanceAddress);
+            API.setAPI(instanceAddress);
         }
     }
 
@@ -199,7 +199,7 @@ public class UshahidiSettings {
             if (instance[0].equals(name)) url = instance[1];
         }
 
-        UshahidiInstance.setUshahidiInstance(url);
+        API.setAPI(url);
     }
 
     public int saveCurrentInstance() {
@@ -210,7 +210,7 @@ public class UshahidiSettings {
             rs = getRecordStore("CurrentInstance");
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             DataOutputStream writer = new DataOutputStream(byteStream);
-            writer.writeUTF(UshahidiInstance.getUshahidiInstance()); // Address of active Instance
+            writer.writeUTF(API.getAPI()); // Address of active Instance
             writer.flush();
 
             byte[] record = byteStream.toByteArray();

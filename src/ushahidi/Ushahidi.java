@@ -5,10 +5,6 @@ package ushahidi;
  * and open the template in the editor.
  */
 
-
-//import com.harrison.lee.twitpic4j.TwitPic;
-//import com.harrison.lee.twitpic4j.TwitPicResponse;
-//import com.harrison.lee.twitpic4j.exception.TwitPicException;
 import com.sun.lwuit.*;
 
 import com.sun.lwuit.animations.CommonTransitions;
@@ -22,11 +18,11 @@ import com.sun.lwuit.plaf.UIManager;
 
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
-import ushahidi.core.UshahidiInstance;
-import ushahidi.core.UshahidiSettings;
+import ushahidi.core.API;
+import ushahidi.core.Settings;
 import com.sun.lwuit.util.Resources;
 import javax.microedition.midlet.*;
-import ushahidi.core.IncidentMaps;
+import ushahidi.core.Maps;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.Date;
@@ -34,6 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.media.*;
 import javax.microedition.media.control.*;
+
 
 /**
  * @author toshiba
@@ -50,11 +47,10 @@ public class Ushahidi extends MIDlet  {
     private ComboBox reportCategoriesComboBox,categoriesComboBox,instanceComboBox;
     private TextField txtitle,txlocation,txdate, instanceName,instanceURL;
     private TextArea txdescri;
-    private String[] categoryIncidentTitles = {"Death in kiambu", "Riots in UNOBI", "My pen is stolen"};
-    private  String[] categoryNames = {"All Categories","Deaths","Riots","Sexual Assalts",
-                "Property Loss","Government Forces"};
-    private UshahidiSettings settings;
-    private UshahidiInstance ushahidiInstance = null;
+    private String[] categoryIncidentTitles;
+    private  String[] categoryNames;
+    private Settings settings;
+    private API api = null;
     private DefaultListModel incidentListModel = null;
     private Form cameraForm;
     private Player player;
@@ -73,8 +69,8 @@ public class Ushahidi extends MIDlet  {
          * Creates instances of the ushahidi.core.UshahidiSettings.java and
          * ushahidi.core.UshahidiInstance.java classes.
          */
-        settings = new UshahidiSettings();
-        ushahidiInstance = new UshahidiInstance();
+        settings = new Settings();
+        api = new API();
     }
 
     public void startApp() {
@@ -106,11 +102,11 @@ public class Ushahidi extends MIDlet  {
 
         try {
             mainForm.setLayout(new BorderLayout());
-            imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
+            imglogo = Image.createImage("/ushahidi/res/logo.png");
 
             reportButton = new Button("Add Report");
             viewButton = new Button("View Reports");
-            settingsButton = new Button("Change Settings");
+            settingsButton = new Button("Settings");
 
             reportButton.setAlignment(Component.CENTER);
             viewButton.setAlignment(Component.CENTER);
@@ -251,8 +247,10 @@ public class Ushahidi extends MIDlet  {
         viewForm.addCommand(new Command("View") {
             public void actionPerformed(ActionEvent ev) {
                 int selectedIncidentIndex = incidentListModel.getSelectedIndex();
-                getSelectedIncidentByIndex(selectedIncidentIndex);
-                displayDetails();
+                if (selectedIncidentIndex > -1 && Ushahidi.fetchedIncidents.size() > selectedIncidentIndex) {
+                    getSelectedIncidentByIndex(selectedIncidentIndex);
+                    displayDetails();
+                }
             }
         });
 
@@ -264,7 +262,7 @@ public class Ushahidi extends MIDlet  {
          String [] userSetting = settings.getSettings();
          String [] instances = settings.getTitles();
 
-         settingsForm = new Form("Change Settings");
+         settingsForm = new Form("Settings");
          settingsForm.setLayout(new BorderLayout());
 
          if (userSetting != null) {
@@ -367,7 +365,7 @@ public class Ushahidi extends MIDlet  {
         CommonTransitions.SLIDE_HORIZONTAL, true, 500));
         
         try {            
-            logoLabel = new Label(Image.createImage("/ushahidi/res/smallogo.png"));
+            logoLabel = new Label(Image.createImage("/ushahidi/res/logo-small.png"));
             logoLabel.setAlignment(Component.CENTER);
         } catch (IOException ex) {
             System.err.println(ex);
@@ -435,7 +433,7 @@ public class Ushahidi extends MIDlet  {
         reportForm.addCommand(new Command("Submit") {
             public void actionPerformed(ActionEvent ev) {
                 String [] dateField = split(txdate.getText(), " ");                
-                boolean saved = ushahidiInstance.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), reportCategoriesComboBox.getSelectedItem().toString());
+                boolean saved = api.submitIncident(txtitle.getText(), txdescri.getText(), dateField, txlocation.getText(), reportCategoriesComboBox.getSelectedItem().toString());
                 System.out.println("Application saved? "+saved);
                 if (saved)
                     Dialog.show("Succesful", "Your report was succesfully submitted", Dialog.TYPE_CONFIRMATION, null, "Ok", "Cancel");
@@ -467,7 +465,7 @@ public class Ushahidi extends MIDlet  {
         // Get Map of the incident location
         Image mapImg = null;
         try {
-            mapImg = new IncidentMaps(ushahidi.core.IncidentMaps.getMapAPIKey())
+            mapImg = new Maps(ushahidi.core.Maps.getMapAPIKey())
                     .retrieveIncidentMap(320, 240, Double.parseDouble(latitude), Double.parseDouble(longitude), 8);
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -513,7 +511,7 @@ public class Ushahidi extends MIDlet  {
         instance.setLayout(new BorderLayout());
 
         try {
-            imglogo = Image.createImage("/ushahidi/res/ushahidilogo.png");
+            imglogo = Image.createImage("/ushahidi/res/logo.png");
             logoLabel = new Label(imglogo);
             logoLabel.setAlignment(Component.CENTER);
 
@@ -565,7 +563,7 @@ public class Ushahidi extends MIDlet  {
     private boolean isConnected() {
         boolean connected = false;
         settings.setUshahidiDeployment();
-        switch(ushahidiInstance.isConnectionAvailable()) {
+        switch(api.isConnectionAvailable()) {
             case 200:
                 connected = true;
                 break;
@@ -756,7 +754,7 @@ private void captureImage() {
      //</editor-fold>
 
 //    private void getIncidentFilter() {
-//        Vector incident = ushahidiInstance.getIncidents();
+//        Vector incident = api.getIncidents();
 //        holdFetchedIncidents(incident); // Hold fetched incidents
 //        String[] incidentTitles = new String[incident.size()];
 //
@@ -769,7 +767,7 @@ private void captureImage() {
 //    }
     
     private void getIncidentFilter(String categoryName) {
-        Vector incident = ushahidiInstance.getIncidentsByCategoryName(categoryName);
+        Vector incident = api.getIncidentsByCategoryName(categoryName);
         holdFetchedIncidents(incident); // Hold fetched incidents
         String[] incidentTitles = new String[incident.size()];
 
@@ -822,7 +820,7 @@ private void captureImage() {
         new Thread(new Runnable() {
             
             public void run() {
-                ushahidiInstance.getAPIKey("google");
+                api.getAPIKey("google");
             }            
         }).start();        
 
@@ -831,7 +829,7 @@ private void captureImage() {
 
             public void run() {
                 try{
-                categoryTitles = ushahidiInstance.getCategories().getTitles(1);
+                categoryTitles = api.getCategories().getTitles(1);
                 }catch(Exception ex){
                  System.err.println(ex.getMessage());
                 }
