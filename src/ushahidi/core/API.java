@@ -34,9 +34,9 @@ public class API implements Runnable {
         int connectionStatus = 0;
 
         try {            
-            instanceConnection = (HttpConnection) Connector.open(getAPI());
-            instanceConnection.setRequestMethod(HttpConnection.HEAD);
-            connectionStatus = instanceConnection.getResponseCode();
+            connection = (HttpConnection) Connector.open(getDeployment());
+            connection.setRequestMethod(HttpConnection.HEAD);
+            connectionStatus = connection.getResponseCode();
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -50,10 +50,10 @@ public class API implements Runnable {
     /**
      * Sets the current instance address
      *
-     * @param currentInstance
+     * @param deployment
      */
-    public static void setAPI(String currentInstance) {
-        API.currentInstance = currentInstance;
+    public static void setDeployment(String deployment) {
+        API.deployment = deployment;
     }
 
     /**
@@ -61,7 +61,7 @@ public class API implements Runnable {
      *
      * @return URL of current/active Ushahidi instance
      */
-    public static String getAPI() { return currentInstance; }
+    public static String getDeployment() { return deployment; }
 
     /**
      * This method submits reports to an instance of an Ushahidi engine based on
@@ -80,7 +80,7 @@ public class API implements Runnable {
         String success = "";
         double[] geoCoordinates = null;
 
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api") : ushahidiInstance.concat("/api");
         String [] setting = (new Settings()).getSettings();        
         String data = "";
@@ -124,13 +124,13 @@ public class API implements Runnable {
 //        System.out.println("Data: "+data);
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            instanceConnection.setRequestMethod(HttpConnection.POST);
-            instanceConnection.setRequestProperty("User-Agent", "Profile/MIDP-2.0 Configuration/CLDC-1.1");
-            instanceConnection.setRequestProperty("Connection", "keep-alive");
-            instanceConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // multipart/form-data
-            instanceConnection.setRequestProperty("Content-Length", data.getBytes().length+"");
-            dataOutputStream = instanceConnection.openDataOutputStream();
+            connection = (HttpConnection) Connector.open(url);
+            connection.setRequestMethod(HttpConnection.POST);
+            connection.setRequestProperty("User-Agent", "Profile/MIDP-2.0 Configuration/CLDC-1.1");
+            connection.setRequestProperty("Connection", "keep-alive");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // multipart/form-data
+            connection.setRequestProperty("Content-Length", data.getBytes().length+"");
+            dataOutputStream = connection.openDataOutputStream();
             byte[] byteData = data.getBytes();
 
             // Send the data byte byte
@@ -141,7 +141,7 @@ public class API implements Runnable {
             // process server response
             Reader reader = null;
             try {
-                reader = new InputStreamReader(instanceConnection.openInputStream());
+                reader = new InputStreamReader(connection.openInputStream());
                 KXmlParser parser = new KXmlParser();
                 parser.setInput(reader);
                 parser.nextTag();
@@ -205,14 +205,14 @@ public class API implements Runnable {
     }
 
     public void getAPIKey(String maps) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=apikeys&by="+maps+"&resp=xml") : ushahidiInstance.concat("/api?task=apikeys&by=google&resp=xml");
         String key = null;
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
+            connection = (HttpConnection) Connector.open(url);
             KXmlParser parser = new KXmlParser();
-            parser.setInput(new InputStreamReader(instanceConnection.openInputStream()));
+            parser.setInput(new InputStreamReader(connection.openInputStream()));
             parser.nextTag();
             parser.require(XmlPullParser.START_TAG, null, "response");
 
@@ -240,14 +240,14 @@ public class API implements Runnable {
      */
     //<editor-fold defaultstate="collapsed" desc="Get Categories">
     public API getCategories() {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&resp=xml") : ushahidiInstance.concat("/api?task=categories&resp=xml");
         instanceCategories = new Vector();
         String id = null, title = null, desc = null, color = null;
         
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -309,13 +309,13 @@ public class API implements Runnable {
 
     public String getCategoryById(int id) {
         // Handles the forward slash at the end of the instance.
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=categories&by="+id+"&resp=xml") : ushahidiInstance.concat("/api?task=categories&by="+id+"&resp=xml");
         String categories = null;
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -342,14 +342,14 @@ public class API implements Runnable {
     }
 
     public Vector getCountries() {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=countries&resp=xml") : ushahidiInstance.concat("/api?task=countries&resp=xml");
         String id = null, iso = null, name = null, capital = null;
         Vector countryVector = new Vector();
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -387,12 +387,12 @@ public class API implements Runnable {
     }
 
     public void getCountryById(int id) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+id+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+id+"&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -415,12 +415,12 @@ public class API implements Runnable {
     }
 
     public void getCoutryByISO(String iso) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+iso+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+iso+"&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream());
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -443,12 +443,12 @@ public class API implements Runnable {
     }
 
     public void getCountryByName(String countryName) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=country&by="+countryName+"&resp=xml") : ushahidiInstance.concat("/api?task=country&by="+countryName+"&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -471,13 +471,13 @@ public class API implements Runnable {
     }
 
     public void getLocations() {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&resp=xml") : ushahidiInstance.concat("/api?task=locations&resp=xml");
         String locations = null;
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -503,12 +503,12 @@ public class API implements Runnable {
     }
 
     public void getLocationById(int locId) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&by="+locId+"&resp=xml") : ushahidiInstance.concat("/api?task=locations&by="+locId+"&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -531,12 +531,12 @@ public class API implements Runnable {
     }
 
     public void getLocationByCountryId(int countryId) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=locations&by="+countryId+"&resp=xml") : ushahidiInstance.concat("/api?task=locations&by="+countryId+"&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream());
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -559,14 +559,14 @@ public class API implements Runnable {
     }
 
     public Vector getAllIncidents() {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=all&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=all&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -625,13 +625,13 @@ public class API implements Runnable {
     }
 
 //    public String getIncidentsByCategoryId(int categoryId) {
-//        String ushahidiInstance = API.getAPI();
+//        String ushahidiInstance = API.getDeployment();
 //        String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catid&id="+categoryId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catid&id="+categoryId+"&resp=xml");
 //        String incidents = null;
 //
 //        try {
-//            instanceConnection = (HttpConnection) Connector.open(url);
-//            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+//            connection = (HttpConnection) Connector.open(url);
+//            Reader reader = new InputStreamReader(connection.openInputStream());
 //            KXmlParser parser = new KXmlParser();
 //            parser.setInput(reader);
 //            parser.nextTag();
@@ -681,15 +681,15 @@ public class API implements Runnable {
     
 // Sample request: http://demo.ushahidi.com/api?task=incidents&by=catname&name=Empty+Category&resp=xml
     public Vector getIncidentsByCategoryName(String categoryName) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         categoryName = categoryName.replace(' ', '+');
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=catname&name="+categoryName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=catname&name="+categoryName+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, locationName = null, latitude = null, longitude = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -784,14 +784,14 @@ public class API implements Runnable {
 //    }
 
     public void getIncidentsByLocationId(int locationId) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locid&id="+locationId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=locid&id="+locationId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
         
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -846,14 +846,14 @@ public class API implements Runnable {
     }
 
     public void getIncidentsByLocationName(int locationName) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=locname&name="+locationName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by="+locationName+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();;
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -908,14 +908,14 @@ public class API implements Runnable {
     }
 
      public void getIncidentsBySinceId(int sinceId) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&by=sinceid&id="+sinceId+"&resp=xml");
         String id = null, title = null, description = null, date = null, mode = null, active = null, verified = null;
         Vector incidentsVector = new Vector();
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -982,13 +982,13 @@ public class API implements Runnable {
      * @return Number of approved incident reports
      */
     public int getIncidentCount() {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidentcount&resp=xml") : ushahidiInstance.concat("/api?task=incidentcount&resp=xml");
         String incidentCount = null;
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1015,13 +1015,13 @@ public class API implements Runnable {
     }
 
    public String getGeographicMidpoint() {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=geographicmidpoint&resp=xml") : ushahidiInstance.concat("/api?task=geographicmidpoint&resp=xml");
         String coordinate = null;
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1048,12 +1048,12 @@ public class API implements Runnable {
     }
 
     public void getIncidentsOrderBy(String fieldName) {
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=incidents&orderfield="+fieldName+"&resp=xml") : ushahidiInstance.concat("/api?task=incidents&orderfield="+fieldName+"&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream());
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream());
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1083,12 +1083,12 @@ public class API implements Runnable {
      */
     public String getVersion() {
         String version = null;
-        String ushahidiInstance = API.getAPI();
+        String ushahidiInstance = API.getDeployment();
         String url = (ushahidiInstance.endsWith("/"))? ushahidiInstance.concat("api?task=version&resp=xml") : ushahidiInstance.concat("/api?task=version&resp=xml");
 
         try {
-            instanceConnection = (HttpConnection) Connector.open(url);
-            Reader reader = new InputStreamReader(instanceConnection.openInputStream(), "UTF-8");
+            connection = (HttpConnection) Connector.open(url);
+            Reader reader = new InputStreamReader(connection.openInputStream(), "UTF-8");
             KXmlParser parser = new KXmlParser();
             parser.setInput(reader);
             parser.nextTag();
@@ -1113,7 +1113,7 @@ public class API implements Runnable {
 
     private void closeHttpConnection() {
         try {
-            if (instanceConnection != null) instanceConnection.close();
+            if (connection != null) connection.close();
         } catch (Exception e) {
             //Exception handler here
             System.err.println(e.getMessage());
@@ -1138,6 +1138,6 @@ public class API implements Runnable {
     private static Vector categoryIncidents = null;
     private static boolean fetching = false;
     private Vector instanceCategories = null;
-    private HttpConnection instanceConnection = null;
-    private static String currentInstance;
+    private HttpConnection connection = null;
+    private static String deployment;
 }

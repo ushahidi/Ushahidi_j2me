@@ -21,39 +21,42 @@ import javax.microedition.rms.RecordStoreNotOpenException;
 public class Settings {
 
     private RecordStore getRecordStore(String recordStore) {
-        RecordStore instanceStore = null;
-
+        RecordStore store = null;
         try {
-            instanceStore = RecordStore.openRecordStore(recordStore, true);
-        } catch (RecordStoreException e) {
+            store = RecordStore.openRecordStore(recordStore, true);
+        }
+        catch (RecordStoreException e) {
             System.err.println(e.getMessage());
         }
-
-        return instanceStore;
+        return store;
     }
 
     public void setUshahidiDeployment() {
         RecordStore rs = null;
-        String instanceAddress = null;
+        String deployment = null;
 
         try {
-            rs = getRecordStore("CurrentInstance");
+            rs = getRecordStore("Deployment");
             if (rs.getNumRecords() == 0) {
-                instanceAddress = "http://demo.ushahidi.com";
+                deployment = "http://demo.ushahidi.com";
                 saveInstance("Demo", "http://demo.ushahidi.com");
-            }     else instanceAddress = this.getCurrentInstance();
+            }
+            else {
+                deployment = this.getDeployment();
+            }
 
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             System.err.println(ex.getMessage());
-        } finally {
-            API.setAPI(instanceAddress);
+        }
+        finally {
+            API.setDeployment(deployment);
         }
     }
 
     public int saveSettings(int index, String numberOfReports, String firstName, String lastName, String email) {
         RecordStore rs = null;
         int recordID = 0;
-
         try {
             rs = getRecordStore("SettingsDB");
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -72,9 +75,11 @@ public class Settings {
 
             writer.close();
             byteStream.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
+        }
+        finally {
             closeRecordStore(rs);
         }
         return recordID;
@@ -84,7 +89,6 @@ public class Settings {
         ByteArrayInputStream inputByteStream;
         DataInputStream reader;
         String[] userSetting = null;
-
         try {
             RecordStore rs = getRecordStore("SettingsDB");
 
@@ -103,17 +107,17 @@ public class Settings {
                     userSetting[4] = reader.readUTF(); // E-mail address
                 } //end if
 
-            } catch (InvalidRecordIDException ex) {
+            }
+            catch (InvalidRecordIDException ex) {
                 System.err.println(ex.getMessage());
             }
-
-
-        } catch (RecordStoreNotOpenException ex) {
-            System.err.println(ex);
-        } catch (Exception ex) {
+        }
+        catch (RecordStoreNotOpenException ex) {
             System.err.println(ex);
         }
-
+        catch (Exception ex) {
+            System.err.println(ex);
+        }
         return userSetting;
     }
 
@@ -135,9 +139,11 @@ public class Settings {
 
             writer.close();
             byteStream.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
+        }
+        finally {
             closeRecordStore(rs);
         }
         
@@ -190,7 +196,7 @@ public class Settings {
         return titles;
     }
 
-    public void getInstanceAddressByName(Object name) {
+    public void getDeploymentByName(Object name) {
         String url = null;
         Vector instances = getAllInstances();
 
@@ -199,54 +205,58 @@ public class Settings {
             if (instance[0].equals(name)) url = instance[1];
         }
 
-        API.setAPI(url);
+        API.setDeployment(url);
     }
 
-    public int saveCurrentInstance() {
+    public int saveDeployment() {
         RecordStore rs = null;
         int recordID = 0;
-
         try {
-            rs = getRecordStore("CurrentInstance");
+            rs = getRecordStore("Deployment");
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             DataOutputStream writer = new DataOutputStream(byteStream);
-            writer.writeUTF(API.getAPI()); // Address of active Instance
+            writer.writeUTF(API.getDeployment()); // Address of active Instance
             writer.flush();
 
             byte[] record = byteStream.toByteArray();
 
             if (rs.getNumRecords() == 0) {
                 recordID = rs.addRecord(record, 0, record.length);
-            } else {
+            }
+            else {
                 rs.setRecord(1, record, 0, record.length);
             }
 
             writer.close();
             byteStream.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
+        }
+        finally {
             closeRecordStore(rs);
         }
         return recordID;
     }
 
-    public String getCurrentInstance() {
+    public String getDeployment() {
         String currentInstance = null;
         ByteArrayInputStream byteStream = null;
         DataInputStream reader = null;
         RecordStore rs = null;
 
         try {
-            rs = getRecordStore("CurrentInstance");
+            rs = getRecordStore("Deployment");
 
             byte[] data = rs.getRecord(1);
             byteStream = new ByteArrayInputStream(data);
             reader = new DataInputStream(byteStream);
             currentInstance = reader.readUTF().toString();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
+        }
+        finally {
             closeRecordStore(rs);
         }
 
@@ -257,7 +267,8 @@ public class Settings {
         if (recordStore != null) {
             try {
                 recordStore.closeRecordStore();
-            } catch (RecordStoreException e) {
+            }
+            catch (RecordStoreException e) {
                 System.err.println(e.getMessage());
             }
         } //end if

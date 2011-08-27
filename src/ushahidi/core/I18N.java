@@ -2,7 +2,6 @@ package ushahidi.core;
 
 import java.util.*;
 import java.io.*;
-import com.sun.lwuit.util.Resources;
 
 public class I18N {
 
