@@ -21,7 +21,7 @@ public class Details extends Base {
         Container container = createdBoxLayout();
 
         container.addComponent(createLabel(I18N.s("date")));
-        container.addComponent(createTextField(report.getDate(), false));
+        container.addComponent(createTextField(report.getDateString(), false));
 
         container.addComponent(createLabel(I18N.s("title")));
         container.addComponent(createTextField(report.getTitle(), false));

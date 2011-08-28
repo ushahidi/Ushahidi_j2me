@@ -1,12 +1,23 @@
 package com.ushahidi.j2me.models;
 
 import com.sun.lwuit.Image;
+import java.util.Date;
 
 /**
  * Report Model
  * @author dalezak
  */
 public class Report extends Base {
+
+    private int id;
+    private Date date;
+    private String title;
+    private String location;
+    private String description;
+    private String latitude;
+    private String longitude;
+    private Image map;
+    private Image[] photos;
 
     public boolean load() {
         return false;
@@ -16,32 +27,68 @@ public class Report extends Base {
         return false;
     }
 
-    public String getDate() {
-        return null;
+    public int getID() {
+        return id;
+    }
+
+    public void setID(int id) {
+        this.id = id;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getDateString() {
+        return date != null ? date.toString() : null;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getTitle() {
-        return null;
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
     
     public String getLocation() {
-        return null;
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getDescription() {
-        return null;
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Image getMap() {
-        return null;
+        return map;
+    }
+
+    public void setMap(Image map) {
+        this.map = map;
     }
 
     public Image[] getPhotos() {
-        return new Image[0];
+        return photos;
+    }
+
+    public void setPhotos(Image[] photos) {
+        this.photos = photos;
     }
 
     public Image getPhoto(int index) {
-        return null;
+        return photos != null && photos.length > index ? photos[index] : null;
     }
 
     public int getPhotoCount() {
@@ -49,15 +96,22 @@ public class Report extends Base {
     }
 
     public String getCoordinates() {
-        return null;
+        return latitude != null && longitude != null ? latitude + "," + longitude : null;
     }
 
     public String getLatitude() {
-        return null;
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
     }
 
     public String getLongitude() {
-        return null;
+        return longitude;
     }
 
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
 }
