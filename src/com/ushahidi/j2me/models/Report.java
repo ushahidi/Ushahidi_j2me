@@ -1,117 +1,193 @@
 package com.ushahidi.j2me.models;
 
-import com.sun.lwuit.Image;
-import java.util.Date;
+import org.json.me.JSONException;
 
 /**
  * Report Model
  * @author dalezak
  */
-public class Report extends Base {
+public class Report extends Model {
 
-    private int id;
-    private Date date;
-    private String title;
-    private String location;
-    private String description;
-    private String latitude;
-    private String longitude;
-    private Image map;
-    private Image[] photos;
+    public Report() {
+        super();
+    }
 
-    public boolean load() {
-        return false;
+    protected Report(String json) throws JSONException {
+        super(json);
+    }
+
+    public static Report load(String path) {
+        try {
+            return new Report(fromString(path));
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public boolean save() {
-        return false;
+        return save("file:///" + getDefaultRoot() + getID() + ".txt");
     }
 
     public int getID() {
-        return id;
-    }
-
-    public void setID(int id) {
-        this.id = id;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public String getDateString() {
-        return date != null ? date.toString() : null;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Image getMap() {
-        return map;
-    }
-
-    public void setMap(Image map) {
-        this.map = map;
-    }
-
-    public Image[] getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(Image[] photos) {
-        this.photos = photos;
-    }
-
-    public Image getPhoto(int index) {
-        return photos != null && photos.length > index ? photos[index] : null;
-    }
-
-    public int getPhotoCount() {
+        try {
+            return getInt("id");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
         return 0;
     }
 
-    public String getCoordinates() {
-        return latitude != null && longitude != null ? latitude + "," + longitude : null;
+    public void setID(int id) {
+        try {
+            put("id", id);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
     }
 
+    public String getDate() {
+        try {
+            return getString("date");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setDate(String date) {
+        try {
+            put("date", date);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public String getTitle() {
+        try {
+            return getString("title");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setTitle(String title) {
+        try {
+            put("title", title);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public String getLocation() {
+        try {
+            return getString("description");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setLocation(String location) {
+        try {
+            put("location", location);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public String getDescription() {
+        try {
+            return getString("description");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setDescription(String description) {
+        try {
+            put("description", description);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
+//
+//    public Image getMap() {
+//        return map;
+//    }
+//
+//    public void setMap(Image map) {
+//        this.map = map;
+//    }
+//
+//    public Image[] getPhotos() {
+//        return photos;
+//    }
+//
+//    public void setPhotos(Image[] photos) {
+//        this.photos = photos;
+//    }
+//
+//    public Image getPhoto(int index) {
+//        return photos != null && photos.length > index ? photos[index] : null;
+//    }
+//
+//    public int getPhotoCount() {
+//        return 0;
+//    }
+
+//    public String getCoordinates() {
+//        return latitude != null && longitude != null ? latitude + "," + longitude : null;
+//    }
+
     public String getLatitude() {
-        return latitude;
+        try {
+            return getString("latitude");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public void setLatitude(String latitude) {
-        this.latitude = latitude;
+        try {
+            put("latitude", latitude);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public String getLongitude() {
-        return longitude;
+        try {
+            return getString("longitude");
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public void setLongitude(String longitude) {
-        this.longitude = longitude;
+        try {
+            put("longitude", longitude);
+        }
+        catch (JSONException ex) {
+            ex.printStackTrace();
+        }
     }
 }

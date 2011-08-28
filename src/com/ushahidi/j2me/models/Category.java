@@ -1,15 +1,21 @@
 package com.ushahidi.j2me.models;
 
+import org.json.me.JSONException;
+
 /**
  *
  * @author dalezak
  */
-public class Category extends Base {
+public class Category extends Model {
 
     private int id;
     private String name;
     private String description;
-    
+
+    protected Category(String json) throws JSONException {
+        super(json);
+    }
+
     public boolean load() {
         return false;
     }

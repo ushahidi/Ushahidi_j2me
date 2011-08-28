@@ -21,7 +21,7 @@ public class Details extends Base {
         Container container = createdBoxLayout();
 
         container.addComponent(createLabel(I18N.s("date")));
-        container.addComponent(createTextField(report.getDateString(), false));
+        container.addComponent(createTextField(report.getDate(), false));
 
         container.addComponent(createLabel(I18N.s("title")));
         container.addComponent(createTextField(report.getTitle(), false));
@@ -31,15 +31,15 @@ public class Details extends Base {
 
         container.addComponent(createLabel(I18N.s("location")));
         container.addComponent(createTextField(report.getLocation(), false));
-        container.addComponent(createTextField(report.getCoordinates(), false));
+        //container.addComponent(createTextField(report.getCoordinates(), false));
 
-        container.addComponent(createLabel(I18N.s("map")));
-        container.addComponent(createImageLabel(report.getMap()));
+//        container.addComponent(createLabel(I18N.s("map")));
+//        container.addComponent(createImageLabel(report.getMap()));
 
-        container.addComponent(createLabel(I18N.s("photos")));
-        for (int i=0; i<report.getPhotoCount();i++) {
-            container.addComponent(createImageLabel(report.getPhoto(i)));
-        }
+//        container.addComponent(createLabel(I18N.s("photos")));
+//        for (int i=0; i<report.getPhotoCount();i++) {
+//            container.addComponent(createImageLabel(report.getPhoto(i)));
+//        }
 
         addComponent(BorderLayout.NORTH, container);
 

@@ -9,6 +9,9 @@ import com.sun.lwuit.layouts.BorderLayout;
 
 import com.ushahidi.j2me.App;
 
+import java.util.Enumeration;
+import javax.microedition.io.file.FileSystemRegistry;
+import org.json.me.JSONException;
 import ushahidi.core.I18N;
 
 /**
@@ -59,4 +62,33 @@ public class Dashboard extends Base {
             }
         });
     }
+
+    public void onShowCompleted() {
+        super.onShowCompleted();
+        getRoots();
+        com.ushahidi.j2me.models.Report report = new com.ushahidi.j2me.models.Report();
+        report.setID(1);
+        report.setTitle("Title 1");
+        report.setDescription("Description 1");
+        report.setLatitude("Latitude 1");
+        report.setLongitude("Longitude 1");
+        System.out.println("JSON: " + report.toString());
+        if (report.save()) {
+            System.out.println("Save Succeeded!");
+        } else {
+            System.out.println("Save Failed!");
+        }
+        com.ushahidi.j2me.models.Report report2 = com.ushahidi.j2me.models.Report.load("file:///root1/1.txt");
+        System.out.println("Loaded " + report2.toString());
+
+    }
+
+    private void getRoots() {
+      Enumeration drives = FileSystemRegistry.listRoots();
+      System.out.println("The valid roots found are: ");
+      while(drives.hasMoreElements()) {
+         String root = (String) drives.nextElement();
+         System.out.println("\t"+root);
+      }
+   }
 }

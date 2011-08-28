@@ -1,15 +1,21 @@
 package com.ushahidi.j2me.models;
 
+import org.json.me.JSONException;
+
 /**
  *
  * @author dalezak
  */
-public class Location extends Base {
+public class Location extends Model {
 
     private int id;
     private String name;
     private String latitude;
     private String longitude;
+
+    protected Location(String json) throws JSONException {
+        super(json);
+    }
 
     public boolean load() {
         return false;
