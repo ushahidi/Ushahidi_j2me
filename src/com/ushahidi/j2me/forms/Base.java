@@ -8,8 +8,8 @@ import com.sun.lwuit.Form;
 import com.sun.lwuit.Image;
 import com.sun.lwuit.Label;
 import com.sun.lwuit.List;
+import com.sun.lwuit.TextArea;
 import com.sun.lwuit.TextField;
-import com.sun.lwuit.animations.CommonTransitions;
 import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.BoxLayout;
 import com.sun.lwuit.list.DefaultListModel;
@@ -24,8 +24,7 @@ public abstract class Base extends Form {
     
     public Base(String title) {
         super(title);
-        setTransitionInAnimator(CommonTransitions.createSlide(CommonTransitions.SLIDE_VERTICAL, true, 500));
-        setTransitionOutAnimator(CommonTransitions.createSlide(CommonTransitions.SLIDE_VERTICAL, true, 500));
+        removeAll();
     }
 
     protected Button createButton(String text, ActionListener listener) {
@@ -66,6 +65,12 @@ public abstract class Base extends Form {
         return label;
     }
 
+    protected Label createImageLabel(Image image) {
+        Label label = new Label(image);
+        label.setAlignment(Component.CENTER);
+        return label;
+    }
+
     protected ComboBox createComboBox() {
         ComboBox comboBox = new ComboBox();
 
@@ -89,6 +94,22 @@ public abstract class Base extends Form {
         TextField textField = new TextField(text);
         textField.setConstraint(constraint);
         return textField;
+    }
+    
+    protected TextField createTextField(String text, boolean editable) {
+        TextField textField = new TextField(text);
+        textField.setEditable(editable);
+        return textField;
+    }
+
+    protected TextArea createTextArea(String text) {
+        return createTextArea(text, false);
+    }
+
+    protected TextArea createTextArea(String text, boolean editable) {
+        TextArea textArea = new TextArea(text);
+        textArea.setEditable(editable);
+        return textArea;
     }
 
     protected Container createdBoxLayout() {

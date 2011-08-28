@@ -25,20 +25,20 @@ public class I18N {
     }
 
     private void init() throws Exception {
-        System.out.println("I18N.getInstance():" + locale);
+        //System.out.println("I18N.getInstance():" + locale);
         if (!this.tableOfLocales.containsKey(locale)) {
             InputStream is = null;
             try {
                 String file = "/ushahidi/res/i18n/" + locale + ".properties";
-                System.out.println("I18N.getInstance(): trying read " + file);
+                //System.out.println("I18N.getInstance(): trying read " + file);
                 try {
                     is = this.getClass().getResourceAsStream(file);
                 } catch (Exception e) {
-                    System.err.println("I18N.getInstance(): ERRORE! File " + file + " not found.");
+                    //System.err.println("I18N.getInstance(): ERRORE! File " + file + " not found.");
                 }
                 if (is == null) {
                     file = "/ushahidi/res/i18n/en.properties";
-                    System.out.println("I18N.getInstance(): trying read " + file);
+                    //System.out.println("I18N.getInstance(): trying read " + file);
                     is = this.getClass().getResourceAsStream(file);
                 }
                 StringBuffer str = new StringBuffer();
@@ -51,8 +51,8 @@ public class I18N {
                         if ((s.indexOf("=") >= 0) && (!s.startsWith("#"))) {
                             String key = s.substring(0, s.indexOf("="));
                             String value = s.substring(s.indexOf("=") + 1, s.length());
-                            System.out.println("I18N.getInstance(): key=" + key);
-                            System.out.println("I18N.getInstance(): value=" + value);
+                            //System.out.println("I18N.getInstance(): key=" + key);
+                            //System.out.println("I18N.getInstance(): value=" + value);
                             if (table.containsKey(key)) {
                                 String tmp = (String) table.get(key);
                                 value = tmp + "\n" + value;
@@ -65,11 +65,9 @@ public class I18N {
                     }
                 }
                 this.tableOfLocales.put(locale, table);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            }
-            finally {
+            } finally {
                 if (is != null) {
                     try {
                         is.close();
@@ -88,8 +86,8 @@ public class I18N {
                 out = (String) ht.get(key);
             }
         }
-        System.out.println("I18N.translate(): key=" + key);
-        System.out.println("I18N.translate(): value=" + out);
+        //System.out.println("I18N.translate(): key=" + key);
+        //System.out.println("I18N.translate(): value=" + out);
         return out;
     }
 

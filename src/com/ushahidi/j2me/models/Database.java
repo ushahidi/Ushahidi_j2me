@@ -25,7 +25,15 @@ public class Database {
         return new Report[0];
     }
 
+    public Report[] getReports(Category category) {
+        return new Report[0];
+    }
+
     public String[] getReportNames() {
+        return new String[0];
+    }
+
+    public String[] getReportNames(Category category) {
         return new String[0];
     }
 

@@ -19,11 +19,14 @@ public class Settings extends Base {
 
     public Settings(final App app) {
         super(I18N.s("settings"));
+        setLayout(new BorderLayout());
+        
         String[] userSetting = settings.getSettings();
         String[] titles = settings.getTitles();
 
         Container container = createdBoxLayout();
 
+        final ComboBox languages = createComboBox();
         final TextField reports = createTextField();
         final ComboBox deployments = createComboBox(titles);
         final TextField firstName = createTextField();
@@ -37,7 +40,16 @@ public class Settings extends Base {
             lastName.setText(userSetting[3]);
             email.setText(userSetting[4]);
         }
-        
+        //LANGUAGE
+        container.addComponent(createLabel(I18N.s("language")));
+        languages.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                //settings.getDeploymentByName(deployments.getSelectedItem());
+                //settings.saveSettings(deployments.getSelectedIndex(), reports.getText(), firstName.getText(), lastName.getText(), email.getText());
+            }
+        });
+        container.addComponent(languages);
+
         //DEPLOYMENT
         container.addComponent(createLabel(I18N.s("deployment")));
         deployments.addActionListener(new ActionListener() {
@@ -71,7 +83,7 @@ public class Settings extends Base {
 
         addCommand(new Command(I18N.s("back")) {
             public void actionPerformed(ActionEvent ev) {
-                new Dashboard(app).show();
+                app.showDashboard(false);
             }
         });
         addCommand(new Command(I18N.s("save")) {
@@ -82,13 +94,13 @@ public class Settings extends Base {
                     app.exit();
                 }
                 else {
-                    new Dashboard(app).show();
+                    app.showDashboard(false);
                 }
             }
         });
         addCommand(new Command(I18N.s("add_deployment")) {
             public void actionPerformed(ActionEvent ev) {
-                new Report(app).show();
+                //app.showCreate(true);
             }
         });
 
